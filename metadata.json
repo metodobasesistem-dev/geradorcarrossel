@@ -1,0 +1,6 @@
+{
+  "name": "Criador de Carrossel Instagram",
+  "description": "Crie carrosséis de alta qualidade para o Instagram com auxílio de Inteligência Artificial do Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
