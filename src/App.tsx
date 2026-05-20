@@ -7,7 +7,7 @@ import {
   CarouselData 
 } from "./types";
 import CardPreview from "./components/CardPreview";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import { 
   Sparkles, 
   Download, 

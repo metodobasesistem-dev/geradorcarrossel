@@ -171,10 +171,10 @@ async function startServer() {
       else if (aspectRatio === "16:9") actualRatio = "16:9";
       else if (aspectRatio === "4:3") actualRatio = "4:3";
 
-      console.log(`Generating image using 'imagen-3.0-generate-002' for prompt: "${prompt}" with ratio: ${actualRatio}`);
+      console.log(`Generating image using 'imagen-4.0-generate-001' for prompt: "${prompt}" with ratio: ${actualRatio}`);
 
       const response = await ai.models.generateImages({
-        model: "imagen-3.0-generate-002",
+        model: "imagen-4.0-generate-001",
         prompt: `${prompt}, modern design asset in high contrast vibrant colors, digital art mockup studio backdrop, crisp resolution, beautiful graphic design`,
         config: {
           numberOfImages: 1,
