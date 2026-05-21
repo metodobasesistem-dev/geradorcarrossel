@@ -1675,6 +1675,16 @@ export default function App() {
                             </>
                           )}
                         </button>
+                        
+                        {carouselData.cards[activeCardIndex].imageUrl && (
+                          <button
+                            onClick={() => handleDownloadRawImage(carouselData.cards[activeCardIndex].imageUrl!, activeCardIndex)}
+                            className="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-[9px] font-bold uppercase tracking-wide text-slate-300 transition-all flex items-center justify-center gap-2 mt-1"
+                          >
+                            <Download className="w-3 h-3" />
+                            <span>Baixar Apenas a Imagem (Raw)</span>
+                          </button>
+                        )}
                       </div>
                     </div>
 
