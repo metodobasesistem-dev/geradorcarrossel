@@ -239,17 +239,12 @@ export default function App() {
 
       const result = await response.json();
       
-      if (carouselData) {
-        const updatedCards = [...carouselData.cards];
-        updatedCards[index] = {
-          ...updatedCards[index],
-          imageUrl: result.imageUrl // base64 URL
-        };
-        setCarouselData({
-          ...carouselData,
-          cards: updatedCards
-        });
-      }
+      setCarouselData(prev => {
+        if (!prev) return prev;
+        const updatedCards = [...prev.cards];
+        updatedCards[index] = { ...updatedCards[index], imageUrl: result.imageUrl };
+        return { ...prev, cards: updatedCards };
+      });
     } catch (err: any) {
       console.error(err);
       setErrorMessage(`Erro ao gerar imagem: ${err.message || "Erro de rede no Gemini nano banana."}`);
@@ -264,15 +259,13 @@ export default function App() {
     if (file && carouselData) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (typeof reader.result === "string" && carouselData) {
-          const updatedCards = [...carouselData.cards];
-          updatedCards[index] = {
-            ...updatedCards[index],
-            imageUrl: reader.result
-          };
-          setCarouselData({
-            ...carouselData,
-            cards: updatedCards
+        if (typeof reader.result === "string") {
+          const imageUrl = reader.result;
+          setCarouselData(prev => {
+            if (!prev) return prev;
+            const updatedCards = [...prev.cards];
+            updatedCards[index] = { ...updatedCards[index], imageUrl };
+            return { ...prev, cards: updatedCards };
           });
         }
       };
@@ -282,31 +275,26 @@ export default function App() {
 
   // Individual Card modifications
   const handleUpdateCardField = (index: number, field: keyof InstagramCard, value: any) => {
-    if (!carouselData) return;
-    const updatedCards = [...carouselData.cards];
-    updatedCards[index] = {
-      ...updatedCards[index],
-      [field]: value
-    };
-    setCarouselData({
-      ...carouselData,
-      cards: updatedCards
+    setCarouselData(prev => {
+      if (!prev) return prev;
+      const updatedCards = [...prev.cards];
+      updatedCards[index] = { ...updatedCards[index], [field]: value };
+      return { ...prev, cards: updatedCards };
     });
   };
 
   // Reset slide level color overrides
   const handleResetCardColors = (index: number) => {
-    if (!carouselData) return;
-    const updatedCards = [...carouselData.cards];
-    updatedCards[index] = {
-      ...updatedCards[index],
-      customBgColor: undefined,
-      customTextColor: undefined,
-      customAccentColor: undefined,
-    };
-    setCarouselData({
-      ...carouselData,
-      cards: updatedCards
+    setCarouselData(prev => {
+      if (!prev) return prev;
+      const updatedCards = [...prev.cards];
+      updatedCards[index] = {
+        ...updatedCards[index],
+        customBgColor: undefined,
+        customTextColor: undefined,
+        customAccentColor: undefined,
+      };
+      return { ...prev, cards: updatedCards };
     });
   };
 
@@ -377,33 +365,27 @@ export default function App() {
     setTimeout(() => setCopiedCaption(false), 2000);
   };
 
-  // HTML2Canvas sequence exporter for high quality multiple downloads
+  // HTML2Canvas sequence exporter — captura dos elementos ocultos em resolução real Instagram
   const handleExportAllPng = async () => {
     if (!carouselData) return;
     setIsExportingAll(true);
     setExportProgress(0);
 
-    const oldActiveIndex = activeCardIndex;
-
     try {
-      // Loop through and screenshot each slide off-screen style by temporarily focusing or selecting
-      for (let i = 0; i < carouselData.cards.length; i++) {
-        // Change state to target and let browser paint
-        setActiveCardIndex(i);
-        setExportProgress(Math.round(((i) / carouselData.cards.length) * 100));
-        
-        // Brief sleep to yield process to paint
-        await new Promise((r) => setTimeout(r, 600));
+      await document.fonts.ready;
 
-        // Grab element
-        const element = document.getElementById(`card-canvas-${carouselData.cards[i].id}`);
+      for (let i = 0; i < carouselData.cards.length; i++) {
+        setExportProgress(Math.round((i / carouselData.cards.length) * 100));
+
+        const element = document.getElementById(`export-canvas-${carouselData.cards[i].id}`);
         if (element) {
-          // Highly enhanced definition scales for pristine crisp typography exports (Instagram supports up to 2160 width)
           const canvas = await html2canvas(element, {
-            scale: 2.5, // 2.5x resolution matches perfect HD sharpness
+            scale: 1,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
+            width: DIMENSIONS[size].width,
+            height: DIMENSIONS[size].height,
           });
 
           const dataUrl = canvas.toDataURL("image/png");
@@ -413,6 +395,9 @@ export default function App() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+
+          // Pequeno delay para o browser não bloquear múltiplos downloads
+          await new Promise((r) => setTimeout(r, 300));
         }
       }
       setExportProgress(100);
@@ -420,25 +405,27 @@ export default function App() {
       console.error("Erro durante exportação das imagens:", err);
       setErrorMessage("Erro ao salvar os arquivos das imagens. Tente novamente.");
     } finally {
-      // Restore past view state
-      setActiveCardIndex(oldActiveIndex);
       setTimeout(() => {
         setIsExportingAll(false);
       }, 1000);
     }
   };
 
-  // Download singular active slide immediately
+  // Download singular do slide ativo em resolução 2x (@2x retina)
   const handleExportSinglePng = async (cardId: number, index: number) => {
-    const element = document.getElementById(`card-canvas-${cardId}`);
+    const element = document.getElementById(`export-canvas-${cardId}`);
     if (!element) return;
 
     try {
+      await document.fonts.ready;
+
       const canvas = await html2canvas(element, {
-        scale: 3, // Ultra sharpness
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: null,
+        width: DIMENSIONS[size].width,
+        height: DIMENSIONS[size].height,
       });
 
       const dataUrl = canvas.toDataURL("image/png");
@@ -1359,6 +1346,48 @@ export default function App() {
 
         </section>
       </main>
+
+      {/* Container oculto fora da tela — renderiza todos os cards em resolução real Instagram (1080px)
+          para que html2canvas capture com layout correto, sem depender do activeCardIndex */}
+      {carouselData && (
+        <div
+          style={{
+            position: "fixed",
+            left: "-9999px",
+            top: 0,
+            zIndex: -9999,
+            pointerEvents: "none",
+          }}
+          aria-hidden="true"
+        >
+          {carouselData.cards.map((card, idx) => (
+            <div
+              key={card.id}
+              style={{
+                width: `${DIMENSIONS[size].width}px`,
+                height: `${DIMENSIONS[size].height}px`,
+                overflow: "hidden",
+              }}
+            >
+              <CardPreview
+                id={`export-canvas-${card.id}`}
+                card={card}
+                dimensionType={size}
+                themeColor={themeColor}
+                textColor={textColor}
+                accentColor={accentColor}
+                fontFamily={fontFamily}
+                username={username}
+                avatarUrl={avatarUrl}
+                totalCards={carouselData.cards.length}
+                index={idx}
+                showInstagramOverlay={false}
+                imageFitMode={imageFitMode}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
