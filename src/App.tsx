@@ -435,8 +435,8 @@ export default function App() {
   // Delete card safely
   const deleteCard = (index: number) => {
     if (!carouselData) return;
-    if (carouselData.cards.length <= 2) {
-      setErrorMessage("Um carrossel precisa ter pelo menos 2 cards.");
+    if (carouselData.cards.length <= 1) {
+      setErrorMessage("Um post precisa ter pelo menos 1 card.");
       return;
     }
 
@@ -758,7 +758,7 @@ export default function App() {
                     </label>
                     <input
                       type="range"
-                      min={2}
+                      min={1}
                       max={10}
                       step={1}
                       value={cardCount}
@@ -771,7 +771,7 @@ export default function App() {
                       Recomendação
                     </label>
                     <div className="text-[11px] text-yellow-400/80 text-right font-medium">
-                      {cardCount <= 4 ? "Leituras Rápidas ⚡" : cardCount <= 7 ? "Post Ideal 💎" : "Guia Completo 📚"}
+                      {cardCount === 1 ? "Post Único 🖼️" : cardCount <= 4 ? "Leituras Rápidas ⚡" : cardCount <= 7 ? "Post Ideal 💎" : "Guia Completo 📚"}
                     </div>
                   </div>
                 </div>

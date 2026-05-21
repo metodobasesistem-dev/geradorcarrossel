@@ -51,16 +51,30 @@ async function startServer() {
       const ai = getAiClient();
       const count = parseInt(cardCount, 10) || 5;
 
-      const systemInstruction = 
-        "Você é um redator publicitário de alto nível e especialista em Instagram Growth. " +
-        "Seu objetivo é planejar e estruturar carrosséis altamente magnéticos e persuasivos em língua portuguesa (Brasil).\n" +
-        "Siga estas regras rigorosamente:\n" +
-        "1. Card 1 (Início): Deve conter um gancho (Hook) irresistível de curiosidade ou dor que faça a pessoa querer passar para o lado.\n" +
-        "2. Cards Intermediários: Sequência fluida trazendo 1 conceito importante por card. Apresente em tópicos claros e fáceis de ler.\n" +
-        "3. Card Final (Último): Uma forte chamada para ação (CTA) alinhada ao objetivo, como convidar a interagir, salvar ou seguir.\n" +
-        "4. Escolha uma paleta de cores moderna de 3 cores (tema, texto, destaque) que combine bem com o tema.";
+      const systemInstruction = count === 1
+        ? "Você é um redator publicitário de alto nível e especialista em Instagram Growth. " +
+          "Seu objetivo é planejar e estruturar posts únicos e de alto impacto em língua portuguesa (Brasil).\n" +
+          "Siga estas regras rigorosamente:\n" +
+          "1. O card único deve conter um título atrativo (hook), o corpo do conteúdo direto e uma chamada para ação (CTA) na mesma imagem.\n" +
+          "2. Escolha uma paleta de cores moderna de 3 cores (tema, texto, destaque) que combine bem com o tema."
+        : "Você é um redator publicitário de alto nível e especialista em Instagram Growth. " +
+          "Seu objetivo é planejar e estruturar carrosséis altamente magnéticos e persuasivos em língua portuguesa (Brasil).\n" +
+          "Siga estas regras rigorosamente:\n" +
+          "1. Card 1 (Início): Deve conter um gancho (Hook) irresistível de curiosidade ou dor que faça a pessoa querer passar para o lado.\n" +
+          "2. Cards Intermediários: Sequência fluida trazendo 1 conceito importante por card. Apresente em tópicos claros e fáceis de ler.\n" +
+          "3. Card Final (Último): Uma forte chamada para ação (CTA) alinhada ao objetivo, como convidar a interagir, salvar ou seguir.\n" +
+          "4. Escolha uma paleta de cores moderna de 3 cores (tema, texto, destaque) que combine bem com o tema.";
 
-      let prompt = `Crie a estrutura completa de um carrossel do Instagram com exatamente ${count} cards.
+      let prompt = count === 1
+        ? `Crie a estrutura completa de um post de imagem única (exatamente 1 card) para o Instagram.
+      Tema do post: "${theme}"
+      Público-alvo: "${audience}"
+      Objetivo final: "${objective}"
+      Tom de voz desejado: "${toneOfVoice}"
+      Estrutura / Framework do post: "${postStructure}"
+      Dimensões sugeridas: "${size}"
+      Estilo visual desejado: "${style}"`
+        : `Crie a estrutura completa de um carrossel do Instagram com exatamente ${count} cards.
       Tema do carrossel: "${theme}"
       Público-alvo: "${audience}"
       Objetivo final: "${objective}"
