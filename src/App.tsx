@@ -554,6 +554,9 @@ export default function App() {
 
   // Exporta apenas o slide atualmente visível na tela
   const handleExportSinglePng = async (cardId: number, index: number) => {
+    setIsExportingAll(true);
+    // Aguarda React renderizar o componente sem as bordas de edição
+    await new Promise((r) => setTimeout(r, 150));
     try {
       const dataUrl = await captureCard(cardId);
       if (dataUrl) {
@@ -564,6 +567,8 @@ export default function App() {
     } catch (err) {
       console.error(err);
       setErrorMessage("Não foi possível renderizar a imagem deste slide específico.");
+    } finally {
+      setIsExportingAll(false);
     }
   };
 
@@ -1229,7 +1234,7 @@ export default function App() {
                         index={activeCardIndex}
                         showInstagramOverlay={showInstagramOverlay}
                         imageFitMode={imageFitMode}
-                        isEditable={true}
+                        isEditable={!isExportingAll}
                         onUpdateField={(field, value) => handleUpdateCardField(activeCardIndex, field, value)}
                       />
                     </div>
