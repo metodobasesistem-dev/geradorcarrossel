@@ -195,7 +195,7 @@ async function startServer() {
   // 2. Generate Image for a single card using the Gemini model
   app.post("/api/carousel/generate-image", async (req, res) => {
     try {
-      const { prompt, aspectRatio } = req.body;
+      const { prompt, aspectRatio, titleToRender, subtitleToRender } = req.body;
 
       if (!prompt) {
         return res.status(400).json({ error: "Prompt de imagem é obrigatório." });
@@ -210,11 +210,23 @@ async function startServer() {
       else if (aspectRatio === "16:9") actualRatio = "16:9";
       else if (aspectRatio === "4:3") actualRatio = "4:3";
 
-      console.log(`Generating image using 'imagen-4.0-generate-001' for prompt: "${prompt}" with ratio: ${actualRatio}`);
+      let finalPrompt = `${prompt}, hyperrealistic, 8k resolution, cinematic lighting, digital overlays, floating UI elements, modern aesthetic, professional ad photography, masterpiece`;
+      
+      if (titleToRender) {
+        finalPrompt += `\n\nCRITICAL INSTRUCTION: You MUST render the following exact text directly into the image layout: "${titleToRender}". Use large, bold, modern, highly legible typography. Do not misspell the words.`;
+      }
+      if (subtitleToRender) {
+        finalPrompt += ` Also render this subtext somewhere in the design: "${subtitleToRender}".`;
+      }
+      if (titleToRender || subtitleToRender) {
+        finalPrompt += ` Include modern floating UI cards, glassmorphism dashboards, and mobile app notifications floating around the main subject.`;
+      }
+
+      console.log(`Generating image using 'imagen-4.0-generate-001' for prompt: "${finalPrompt}" with ratio: ${actualRatio}`);
 
       const response = await ai.models.generateImages({
         model: "imagen-4.0-generate-001",
-        prompt: `${prompt}, hyperrealistic, 8k resolution, cinematic lighting, digital overlays, floating UI elements, modern aesthetic, professional ad photography, masterpiece`,
+        prompt: finalPrompt,
         config: {
           numberOfImages: 1,
           aspectRatio: actualRatio,

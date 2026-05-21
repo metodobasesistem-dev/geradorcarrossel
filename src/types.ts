@@ -56,6 +56,7 @@ export interface InstagramCard {
   swipeText?: string;
   likesCount?: string;
   commentsCount?: string;
+  fullDesignMode?: boolean;
   
   // Customization Profissional (Nível Canva)
   backgroundImageUrl?: string; // Fundo específico do slide

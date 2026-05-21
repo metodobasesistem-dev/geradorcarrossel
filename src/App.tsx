@@ -340,7 +340,9 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: card.imagePrompt,
-          aspectRatio: DIMENSIONS[size].aspectRatio // "1:1" or "3:4" or "9:16"
+          aspectRatio: DIMENSIONS[size].aspectRatio, // "1:1" or "3:4" or "9:16"
+          titleToRender: card.fullDesignMode ? card.title : undefined,
+          subtitleToRender: card.fullDesignMode ? card.subtitle : undefined
         }),
       });
 
@@ -354,7 +356,20 @@ export default function App() {
       setCarouselData(prev => {
         if (!prev) return prev;
         const updatedCards = [...prev.cards];
-        updatedCards[index] = { ...updatedCards[index], imageUrl: result.imageUrl };
+        let newCard = { ...updatedCards[index], imageUrl: result.imageUrl };
+        
+        if (newCard.fullDesignMode) {
+          newCard.hideTitle = true;
+          newCard.hideSubtitle = true;
+          newCard.hideBody = true;
+          newCard.hideFooter = true;
+          newCard.hideBadge = true;
+          newCard.hideIllustrationSpace = true;
+          newCard.imageObjectFit = "cover";
+          newCard.bgOpacity = 100;
+        }
+
+        updatedCards[index] = newCard;
         return { ...prev, cards: updatedCards };
       });
     } catch (err: any) {
@@ -1595,6 +1610,20 @@ export default function App() {
                           className="w-full bg-slate-950 border border-white/5 rounded-lg p-2 text-[10px] text-slate-300 placeholder-slate-600 focus:outline-none"
                         />
                         
+                      <div className="space-y-1.5 pt-1">
+                        <label className="flex items-center gap-2 cursor-pointer mb-2 pb-1.5 border-b border-white/5">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].fullDesignMode || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "fullDesignMode", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[10px] text-purple-300 font-bold flex items-center gap-1.5">
+                            <Sparkles className="w-3 h-3 text-pink-400" />
+                            Modo Full Design (Texto na Imagem)
+                          </span>
+                        </label>
+
                         <button
                           onClick={() => handleGenerateImageForCard(carouselData.cards[activeCardIndex].id, activeCardIndex)}
                           disabled={generatingCardImageId !== null}
