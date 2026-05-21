@@ -1,6 +1,6 @@
 import React from "react";
 import { InstagramCard, DimensionType, DIMENSIONS } from "../types";
-import { MessageSquare, Heart, Send, Bookmark, ArrowRight, Quote } from "lucide-react";
+import { MessageSquare, Heart, Send, Bookmark, ArrowRight, Quote, Trash2 } from "lucide-react";
 
 interface CardPreviewProps {
   card: InstagramCard;
