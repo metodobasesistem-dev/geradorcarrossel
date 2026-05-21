@@ -52,7 +52,9 @@ export default function App() {
   const [themeColor, setThemeColor] = useState(PRESET_STYLES[0].bg);
   const [textColor, setTextColor] = useState(PRESET_STYLES[0].text);
   const [accentColor, setAccentColor] = useState(PRESET_STYLES[0].accent);
-  const [fontFamily, setFontFamily] = useState(PRESET_STYLES[0].font);
+  const [titleFont, setTitleFont] = useState(PRESET_STYLES[0].titleFont);
+  const [bodyFont, setBodyFont] = useState(PRESET_STYLES[0].bodyFont);
+  const [bgTexture, setBgTexture] = useState<"solid" | "noise" | "gradient">("solid");
 
   // User Branding Profile
   const [username, setUsername] = useState("@seu.perfil");
@@ -116,7 +118,9 @@ export default function App() {
           setThemeColor(parsed.themeColor || PRESET_STYLES[0].bg);
           setTextColor(parsed.textColor || PRESET_STYLES[0].text);
           setAccentColor(parsed.accentColor || PRESET_STYLES[0].accent);
-          setFontFamily(parsed.fontFamily || PRESET_STYLES[0].font);
+          setTitleFont(parsed.titleFont || parsed.fontFamily || PRESET_STYLES[0].titleFont);
+          setBodyFont(parsed.bodyFont || parsed.fontFamily || PRESET_STYLES[0].bodyFont);
+          setBgTexture(parsed.bgTexture || "solid");
           setUsername(parsed.username || "@seu.perfil");
           setAvatarUrl(parsed.avatarUrl || "");
           setCarouselData(parsed.carouselData);
@@ -146,7 +150,9 @@ export default function App() {
           themeColor,
           textColor,
           accentColor,
-          fontFamily,
+          titleFont,
+          bodyFont,
+          bgTexture,
           username,
           avatarUrl,
           carouselData,
@@ -172,7 +178,8 @@ export default function App() {
     setThemeColor(preset.bg);
     setTextColor(preset.text);
     setAccentColor(preset.accent);
-    setFontFamily(preset.font);
+    setTitleFont(preset.titleFont);
+    setBodyFont(preset.bodyFont);
   };
 
   // Avatar Image upload conversion to Base64
@@ -945,7 +952,7 @@ export default function App() {
                       </div>
                       <div className="min-w-0">
                         <span className="text-[11px] block font-semibold text-slate-100 truncate">{preset.name}</span>
-                        <span className="text-[9px] block text-slate-500 truncate font-mono">{preset.font}</span>
+                        <span className="text-[9px] block text-slate-500 truncate font-mono">{preset.titleFont}</span>
                       </div>
                     </button>
                   );
@@ -1017,22 +1024,111 @@ export default function App() {
             </div>
 
             {/* Typography selection */}
-            <div>
-              <span className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1">
-                <FontIcon className="w-3.5 h-3.5" />
-                <span>Tipografia (Fonte das Headlines)</span>
-              </span>
-              <select
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
-              >
-                <option value="Inter">Inter (Sans-Serif Clean)</option>
-                <option value="Space Grotesk">Space Grotesk (Tech Editorial)</option>
-                <option value="Outfit">Outfit (Display Modern)</option>
-                <option value="Playfair Display">Playfair Display (Editorial Citações)</option>
-                <option value="JetBrains Mono">JetBrains Mono (Focado em Código)</option>
-              </select>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="block text-[10px] font-semibold text-slate-300 mb-1.5 flex items-center gap-1">
+                  <FontIcon className="w-3 h-3 text-purple-400" />
+                  <span>Fonte do Título</span>
+                </span>
+                <select
+                  value={titleFont}
+                  onChange={(e) => setTitleFont(e.target.value)}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-2 py-2 text-[10px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                >
+                  <optgroup label="Moderno / Tech">
+                    <option value="Inter">Inter</option>
+                    <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Outfit">Outfit</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Poppins">Poppins</option>
+                  </optgroup>
+                  <optgroup label="Editorial / Luxo">
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Cormorant Garamond">Cormorant Garamond</option>
+                    <option value="Lora">Lora</option>
+                  </optgroup>
+                  <optgroup label="Impacto / Aggressive">
+                    <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Oswald">Oswald</option>
+                  </optgroup>
+                  <optgroup label="Mono / Developer">
+                    <option value="Fira Code">Fira Code</option>
+                    <option value="JetBrains Mono">JetBrains Mono</option>
+                  </optgroup>
+                </select>
+              </div>
+              
+              <div>
+                <span className="block text-[10px] font-semibold text-slate-300 mb-1.5 flex items-center gap-1">
+                  <span className="w-3 h-3 flex items-center justify-center font-serif text-slate-400">T</span>
+                  <span>Fonte do Texto</span>
+                </span>
+                <select
+                  value={bodyFont}
+                  onChange={(e) => setBodyFont(e.target.value)}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-2 py-2 text-[10px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                >
+                  <option value="Inter">Inter (Limpa & Rápida)</option>
+                  <option value="Roboto">Roboto (Clássica)</option>
+                  <option value="Montserrat">Montserrat (Redonda)</option>
+                  <option value="Nunito">Nunito (Suave)</option>
+                  <option value="Lato">Lato (Elegante)</option>
+                  <option value="Playfair Display">Playfair (Serifada)</option>
+                  <option value="Fira Code">Fira Code (Tech)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Background Texture & Save Brand */}
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div>
+                <span className="block text-[10px] font-semibold text-slate-300 mb-1.5 flex items-center gap-1">
+                  <Palette className="w-3 h-3 text-pink-400" />
+                  <span>Textura de Fundo</span>
+                </span>
+                <select
+                  value={bgTexture}
+                  onChange={(e) => setBgTexture(e.target.value as any)}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-2 py-2 text-[10px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                >
+                  <option value="solid">Sólido (Clean)</option>
+                  <option value="gradient">Gradiente Radial</option>
+                  <option value="noise">Ruído / Granulado</option>
+                </select>
+              </div>
+
+              <div className="flex items-end gap-2">
+                <button
+                  onClick={() => {
+                    const saved = localStorage.getItem('geradorCarrossel_customBrand');
+                    if (saved) {
+                      const brand = JSON.parse(saved);
+                      setThemeColor(brand.bg);
+                      setTextColor(brand.text);
+                      setAccentColor(brand.accent);
+                      setTitleFont(brand.titleFont);
+                      setBodyFont(brand.bodyFont);
+                      setSelectedStyleIndex(-1);
+                    } else {
+                      alert("Você ainda não salvou nenhuma marca!");
+                    }
+                  }}
+                  className="flex-1 h-[34px] bg-slate-900 hover:bg-slate-800 active:scale-95 text-[10px] font-bold uppercase tracking-wide text-slate-300 transition-all rounded-xl border border-white/10 flex items-center justify-center"
+                >
+                  Carregar
+                </button>
+                <button
+                  onClick={() => {
+                    const customBrand = { bg: themeColor, text: textColor, accent: accentColor, titleFont, bodyFont };
+                    localStorage.setItem('geradorCarrossel_customBrand', JSON.stringify(customBrand));
+                    alert("Sua marca foi salva com sucesso no navegador!");
+                  }}
+                  className="flex-1 h-[34px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-[10px] font-bold uppercase tracking-wide text-white transition-all rounded-xl border border-white/10 flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1247,7 +1343,9 @@ export default function App() {
                         themeColor={themeColor}
                         textColor={textColor}
                         accentColor={accentColor}
-                        fontFamily={fontFamily}
+                        titleFont={titleFont}
+                        bodyFont={bodyFont}
+                        bgTexture={bgTexture}
                         username={username}
                         avatarUrl={avatarUrl}
                         totalCards={carouselData.cards.length}

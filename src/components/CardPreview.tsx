@@ -8,7 +8,9 @@ interface CardPreviewProps {
   themeColor: string;
   textColor: string;
   accentColor: string;
-  fontFamily: string;
+  titleFont: string;
+  bodyFont: string;
+  bgTexture: string;
   username: string;
   avatarUrl?: string;
   totalCards: number;
@@ -125,7 +127,9 @@ export default function CardPreview({
   themeColor,
   textColor,
   accentColor,
-  fontFamily,
+  titleFont,
+  bodyFont,
+  bgTexture,
   username,
   avatarUrl,
   totalCards,
@@ -183,21 +187,21 @@ export default function CardPreview({
     });
   };
 
-  // Font class switcher
-  const getFontFamilyClass = () => {
-    switch (fontFamily) {
-      case "Space Grotesk":
-        return "font-display";
-      case "Playfair Display":
-        return "font-serif";
-      case "Fira Code":
-      case "JetBrains Mono":
-        return "font-mono";
-      case "Outfit":
-        return "font-outfit";
-      default:
-        return "font-sans";
+  // Background Texture generator
+  const getBackgroundTextureStyle = () => {
+    if (bgTexture === 'noise') {
+      return {
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        opacity: isDark ? 0.05 : 0.08,
+        mixBlendMode: isDark ? "overlay" : "multiply" as any,
+      };
     }
+    if (bgTexture === 'gradient') {
+      return {
+        background: `radial-gradient(circle at top right, ${accentColor}15 0%, transparent 60%), radial-gradient(circle at bottom left, ${textColor}08 0%, transparent 50%)`,
+      };
+    }
+    return {};
   };
 
   // Determine standard colors or overrides for individual slide editing
@@ -214,9 +218,14 @@ export default function CardPreview({
       className={`relative w-full rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${currentDim.ratioClass} border border-white/10`}
       style={{ 
         backgroundColor: bgStyle,
-        fontFamily: fontFamily,
+        fontFamily: bodyFont,
       }}
     >
+      {/* Texture Overlay */}
+      {bgTexture !== 'solid' && (
+        <div className="absolute inset-0 pointer-events-none z-0" style={getBackgroundTextureStyle()} />
+      )}
+      
       {/* Background Image / Texture Layer */}
       {card.backgroundImageUrl ? (
         <>
@@ -311,7 +320,7 @@ export default function CardPreview({
         <div className="flex-1 flex flex-col justify-center my-6">
           {card.layoutType === "text-center" && (
             <ResizableBlock 
-              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-4 mx-auto ${getFontFamilyClass()}`}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-4 mx-auto`}
               initialWidth={card.textWidth || 100}
               isEditable={isEditable}
               onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
@@ -336,7 +345,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
-                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -361,7 +370,7 @@ export default function CardPreview({
 
           {card.layoutType === "text-left" && (
             <ResizableBlock 
-              className={`${card.textAlign ? `text-${card.textAlign}` : "text-left"} space-y-4 ${getFontFamilyClass()}`}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-left"} space-y-4`}
               initialWidth={card.textWidth || 100}
               isEditable={isEditable}
               onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
@@ -386,7 +395,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
-                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -411,7 +420,7 @@ export default function CardPreview({
 
           {card.layoutType === "quote" && (
             <ResizableBlock 
-              className={`mx-auto ${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 ${getFontFamilyClass()}`}
+              className={`mx-auto ${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6`}
               initialWidth={card.textWidth || 100}
               isEditable={isEditable}
               onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
@@ -427,7 +436,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed"
-                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -451,7 +460,7 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "split-vertical" && (
-            <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full ${getFontFamilyClass()}`}>
+            <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full`}>
               <ResizableBlock 
                 className={`md:col-span-3 space-y-4 ${card.textAlign ? `text-${card.textAlign}` : ""}`}
                 initialWidth={card.textWidth || 100}
@@ -478,7 +487,7 @@ export default function CardPreview({
                   <EditableText
                     tag="h2"
                     className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight"
-                    style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
+                    style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
                     value={card.title}
                     field="title"
                     isEditable={isEditable}
@@ -524,7 +533,7 @@ export default function CardPreview({
 
           {card.layoutType === "cta-card" && (
             <ResizableBlock 
-              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 mx-auto ${getFontFamilyClass()}`}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 mx-auto`}
               initialWidth={card.textWidth || 100}
               isEditable={isEditable}
               onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
@@ -559,7 +568,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase"
-                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
