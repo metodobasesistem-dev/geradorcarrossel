@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import { 
   InstagramCard, 
   DimensionType, 
@@ -78,10 +79,6 @@ export default function App() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const cardCustomImageRefs = useRef<Record<number, HTMLInputElement>>({});
 
-  // Preview scale: renders card at full Instagram resolution and scales down visually
-  const previewContainerRef = useRef<HTMLDivElement>(null);
-  const [previewScale, setPreviewScale] = useState(0.31);
-
   // Real-time Clock for status indicator as per aesthetic standards
   useEffect(() => {
     const updateTime = () => {
@@ -92,19 +89,6 @@ export default function App() {
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  // Recalcula o scale do preview sempre que o container ou o tamanho mudam
-  useEffect(() => {
-    const updateScale = () => {
-      if (previewContainerRef.current) {
-        const w = previewContainerRef.current.clientWidth;
-        setPreviewScale(w / DIMENSIONS[size].width);
-      }
-    };
-    updateScale();
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, [size]);
 
   // Update design colors when Preset changes
   const applyPreset = (index: number) => {
@@ -387,38 +371,46 @@ export default function App() {
     setTimeout(() => setCopiedCaption(false), 2000);
   };
 
-  // HTML2Canvas sequence exporter — captura dos elementos ocultos em resolução real Instagram
+  // Captura um elemento visível e gera PNG na resolução exata do Instagram
+  const captureElement = async (element: HTMLElement): Promise<string> => {
+    await document.fonts.ready;
+    // Calcula o scale para produzir exatamente a largura Instagram (ex: 1080px)
+    const scale = DIMENSIONS[size].width / element.offsetWidth;
+    const canvas = await html2canvas(element, {
+      scale,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+      logging: false,
+    });
+    return canvas.toDataURL("image/png");
+  };
+
+  // Exporta todos os slides: usa flushSync para garantir re-render síncrono antes de capturar
   const handleExportAllPng = async () => {
     if (!carouselData) return;
     setIsExportingAll(true);
     setExportProgress(0);
 
-    try {
-      await document.fonts.ready;
+    const oldActiveIndex = activeCardIndex;
 
+    try {
       for (let i = 0; i < carouselData.cards.length; i++) {
         setExportProgress(Math.round((i / carouselData.cards.length) * 100));
 
-        const element = document.getElementById(`export-canvas-${carouselData.cards[i].id}`);
-        if (element) {
-          const canvas = await html2canvas(element, {
-            scale: 1,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: null,
-            width: DIMENSIONS[size].width,
-            height: DIMENSIONS[size].height,
-          });
+        // flushSync garante que React re-renderiza o card correto antes de capturar
+        flushSync(() => setActiveCardIndex(i));
 
-          const dataUrl = canvas.toDataURL("image/png");
+        const element = document.getElementById(`card-canvas-${carouselData.cards[i].id}`);
+        if (element) {
+          const dataUrl = await captureElement(element);
           const link = document.createElement("a");
           link.download = `slide-${i + 1}-instagram.png`;
           link.href = dataUrl;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-
-          // Pequeno delay para o browser não bloquear múltiplos downloads
+          // Delay mínimo para o browser processar o download
           await new Promise((r) => setTimeout(r, 300));
         }
       }
@@ -427,30 +419,17 @@ export default function App() {
       console.error("Erro durante exportação das imagens:", err);
       setErrorMessage("Erro ao salvar os arquivos das imagens. Tente novamente.");
     } finally {
-      setTimeout(() => {
-        setIsExportingAll(false);
-      }, 1000);
+      setActiveCardIndex(oldActiveIndex);
+      setTimeout(() => setIsExportingAll(false), 1000);
     }
   };
 
-  // Download singular do slide ativo em resolução 2x (@2x retina)
+  // Exporta apenas o slide ativo atual
   const handleExportSinglePng = async (cardId: number, index: number) => {
-    const element = document.getElementById(`export-canvas-${cardId}`);
+    const element = document.getElementById(`card-canvas-${cardId}`);
     if (!element) return;
-
     try {
-      await document.fonts.ready;
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        width: DIMENSIONS[size].width,
-        height: DIMENSIONS[size].height,
-      });
-
-      const dataUrl = canvas.toDataURL("image/png");
+      const dataUrl = await captureElement(element);
       const link = document.createElement("a");
       link.download = `slide-${index + 1}-single.png`;
       link.href = dataUrl;
@@ -1016,44 +995,22 @@ export default function App() {
                 <div className="xl:col-span-6 flex flex-col items-center">
                   <div className="w-full max-w-[340px] md:max-w-[400px]">
                     
-                    {/* Live Preview Wrapper — card renderizado em 1080px e reduzido via CSS scale */}
-                    <div ref={previewContainerRef} className="p-1 background-neon-border rounded-3xl overflow-hidden shadow-2xl relative">
-                      <div
-                        style={{
-                          width: "100%",
-                          height: `${DIMENSIONS[size].height * previewScale}px`,
-                          overflow: "hidden",
-                          position: "relative",
-                          borderRadius: "0.75rem",
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: `${DIMENSIONS[size].width}px`,
-                            height: `${DIMENSIONS[size].height}px`,
-                            transform: `scale(${previewScale})`,
-                            transformOrigin: "top left",
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                          }}
-                        >
-                          <CardPreview
-                            card={carouselData.cards[activeCardIndex]}
-                            dimensionType={size}
-                            themeColor={themeColor}
-                            textColor={textColor}
-                            accentColor={accentColor}
-                            fontFamily={fontFamily}
-                            username={username}
-                            avatarUrl={avatarUrl}
-                            totalCards={carouselData.cards.length}
-                            index={activeCardIndex}
-                            showInstagramOverlay={showInstagramOverlay}
-                            imageFitMode={imageFitMode}
-                          />
-                        </div>
-                      </div>
+                    {/* Live Preview Wrapper */}
+                    <div className="p-1 background-neon-border rounded-3xl overflow-hidden shadow-2xl relative">
+                      <CardPreview
+                        card={carouselData.cards[activeCardIndex]}
+                        dimensionType={size}
+                        themeColor={themeColor}
+                        textColor={textColor}
+                        accentColor={accentColor}
+                        fontFamily={fontFamily}
+                        username={username}
+                        avatarUrl={avatarUrl}
+                        totalCards={carouselData.cards.length}
+                        index={activeCardIndex}
+                        showInstagramOverlay={showInstagramOverlay}
+                        imageFitMode={imageFitMode}
+                      />
                     </div>
 
                     {/* Quick export active button under preview */}
@@ -1391,47 +1348,6 @@ export default function App() {
         </section>
       </main>
 
-      {/* Container oculto fora da tela — renderiza todos os cards em resolução real Instagram (1080px)
-          para que html2canvas capture com layout correto, sem depender do activeCardIndex */}
-      {carouselData && (
-        <div
-          style={{
-            position: "fixed",
-            left: "-9999px",
-            top: 0,
-            zIndex: -9999,
-            pointerEvents: "none",
-          }}
-          aria-hidden="true"
-        >
-          {carouselData.cards.map((card, idx) => (
-            <div
-              key={card.id}
-              style={{
-                width: `${DIMENSIONS[size].width}px`,
-                height: `${DIMENSIONS[size].height}px`,
-                overflow: "hidden",
-              }}
-            >
-              <CardPreview
-                id={`export-canvas-${card.id}`}
-                card={card}
-                dimensionType={size}
-                themeColor={themeColor}
-                textColor={textColor}
-                accentColor={accentColor}
-                fontFamily={fontFamily}
-                username={username}
-                avatarUrl={avatarUrl}
-                totalCards={carouselData.cards.length}
-                index={idx}
-                showInstagramOverlay={false}
-                imageFitMode={imageFitMode}
-              />
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
