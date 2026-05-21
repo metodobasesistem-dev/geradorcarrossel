@@ -1370,15 +1370,35 @@ export default function App() {
                           />
                           <span className="text-[9px] text-slate-400">Ocultar Subtítulo</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer col-span-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={carouselData.cards[activeCardIndex].hideBody || false}
                             onChange={(e) => handleUpdateCardField(activeCardIndex, "hideBody", e.target.checked)}
                             className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
                           />
-                          <span className="text-[9px] text-slate-400">Ocultar Texto Principal</span>
+                          <span className="text-[9px] text-slate-400">Ocultar Texto</span>
                         </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].hideFooter || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "hideFooter", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[9px] text-slate-400">Ocultar Rodapé</span>
+                        </label>
+                        {carouselData.cards[activeCardIndex].layoutType === "cta-card" && (
+                          <label className="flex items-center gap-2 cursor-pointer col-span-2">
+                            <input
+                              type="checkbox"
+                              checked={carouselData.cards[activeCardIndex].hideBadge || false}
+                              onChange={(e) => handleUpdateCardField(activeCardIndex, "hideBadge", e.target.checked)}
+                              className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                            />
+                            <span className="text-[9px] text-slate-400">Ocultar Badge (Último Slide)</span>
+                          </label>
+                        )}
                       </div>
                     </div>
 

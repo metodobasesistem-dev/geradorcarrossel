@@ -50,6 +50,12 @@ export interface InstagramCard {
   hideTitle?: boolean;
   hideSubtitle?: boolean;
   hideBody?: boolean;
+  hideBadge?: boolean;
+  hideFooter?: boolean;
+  badgeText?: string;
+  swipeText?: string;
+  likesCount?: string;
+  commentsCount?: string;
   
   // Customization Profissional (Nível Canva)
   backgroundImageUrl?: string; // Fundo específico do slide

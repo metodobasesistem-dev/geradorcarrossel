@@ -526,9 +526,28 @@ export default function CardPreview({
                 transformOrigin: 'center' 
               }}
             >
-              <span className="inline-block p-1 px-3 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                Último slide 🎉
-              </span>
+              {!card.hideBadge && (
+                <div className="relative group/badge inline-block mx-auto">
+                  <EditableText
+                    tag="span"
+                    className="inline-block p-1 px-3 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    value={card.badgeText !== undefined ? card.badgeText : "Último slide 🎉"}
+                    field="badgeText"
+                    isEditable={isEditable}
+                    onUpdateField={onUpdateField}
+                    renderFormattedText={(val: string) => val}
+                  />
+                  {isEditable && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onUpdateField && onUpdateField("hideBadge", true); }}
+                      className="absolute -top-2 -right-2 bg-red-500 rounded-full p-0.5 opacity-0 group-hover/badge:opacity-100 transition-opacity z-10"
+                      title="Ocultar Badge"
+                    >
+                      <Trash2 className="w-3 h-3 text-white" />
+                    </button>
+                  )}
+                </div>
+              )}
               {!card.hideTitle && (
                 <EditableText
                   tag="h2"
@@ -568,32 +587,75 @@ export default function CardPreview({
         </div>
 
         {/* Card Footer: Swipe indicators, Like mockup */}
-        <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: `${textStyle}15` }}>
-          {/* Action indicator */}
-          <div className="flex items-center gap-1.5">
-            {index < totalCards - 1 ? (
-              <div className="flex items-center gap-2 animate-pulse text-xs font-semibold tracking-wide">
-                <span>Arraste para o lado</span>
-                <ArrowRight className="w-4 h-4" style={{ color: subtitleColor }} />
-              </div>
-            ) : (
-              <span className="text-xs font-semibold opacity-75">Gostou? Deixe o like!</span>
+        {!card.hideFooter && (
+          <div className="relative group/footer flex items-center justify-between pt-2 border-t" style={{ borderColor: `${textStyle}15` }}>
+            {isEditable && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); onUpdateField && onUpdateField("hideFooter", true); }}
+                className="absolute -top-3 right-0 bg-red-500 rounded-full p-1 opacity-0 group-hover/footer:opacity-100 transition-opacity z-10 shadow-lg"
+                title="Ocultar Rodapé"
+              >
+                <Trash2 className="w-3 h-3 text-white" />
+              </button>
             )}
-          </div>
+            
+            {/* Action indicator */}
+            <div className="flex items-center gap-1.5">
+              {index < totalCards - 1 ? (
+                <div className="flex items-center gap-2 animate-pulse text-xs font-semibold tracking-wide">
+                  <EditableText
+                    tag="span"
+                    value={card.swipeText !== undefined ? card.swipeText : "Arraste para o lado"}
+                    field="swipeText"
+                    isEditable={isEditable}
+                    onUpdateField={onUpdateField}
+                    renderFormattedText={(val: string) => val}
+                  />
+                  <ArrowRight className="w-4 h-4" style={{ color: subtitleColor }} />
+                </div>
+              ) : (
+                <EditableText
+                  tag="span"
+                  className="text-xs font-semibold opacity-75"
+                  value={card.swipeText !== undefined ? card.swipeText : "Gostou? Deixe o like!"}
+                  field="swipeText"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => val}
+                />
+              )}
+            </div>
 
-          {/* Social Mockup Interactions (Pristine details) */}
-          <div className="flex items-center gap-4 text-xs opacity-70">
-            <div className="flex items-center gap-1">
-              <Heart className="w-4 h-4" />
-              <span className="font-mono">9.4k</span>
+            {/* Social Mockup Interactions (Pristine details) */}
+            <div className="flex items-center gap-4 text-xs opacity-70">
+              <div className="flex items-center gap-1">
+                <Heart className="w-4 h-4" />
+                <EditableText
+                  tag="span"
+                  className="font-mono"
+                  value={card.likesCount !== undefined ? card.likesCount : "9.4k"}
+                  field="likesCount"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => val}
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <MessageSquare className="w-4 h-4" />
+                <EditableText
+                  tag="span"
+                  className="font-mono"
+                  value={card.commentsCount !== undefined ? card.commentsCount : "412"}
+                  field="commentsCount"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => val}
+                />
+              </div>
+              <Send className="w-4 h-4" />
             </div>
-            <div className="flex items-center gap-1">
-              <MessageSquare className="w-4 h-4" />
-              <span className="font-mono">412</span>
-            </div>
-            <Send className="w-4 h-4" />
           </div>
-        </div>
+        )}
       </div>
 
       {/* Optional Instagram Native App Mock Frame Overlays to view simulated context */}
