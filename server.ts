@@ -104,7 +104,7 @@ async function startServer() {
       }
 
       prompt += `\n\nGere o resultado estritamente no JSON Schema solicitado. 
-      Garanta que 'imagePrompt' para cada slide seja um prompt em inglês detalhado e bem descritivo para que um gerador de imagens IA possa gerar um background ou ilustração abstrata/conceitual condizente com a mensagem daquele slide.`;
+      Garanta que 'imagePrompt' para cada slide seja um prompt fotográfico e cinemático em inglês. Descreva cenas hiper-realistas de alta qualidade, pessoas trabalhando (se aplicável), com elementos visuais de UI (User Interface) flutuando, luzes neon, reflexos e estilo 'Cyberpunk Corporate' ou 'Modern High-End Digital Marketing', semelhante a anúncios de altíssima conversão. Não peça para escrever textos longos na imagem, foque nos elementos visuais, pessoas, objetos e atmosfera.`;
       
       // Update the text in aiContents if it's an array
       if (Array.isArray(aiContents)) {
@@ -214,7 +214,7 @@ async function startServer() {
 
       const response = await ai.models.generateImages({
         model: "imagen-4.0-generate-001",
-        prompt: `${prompt}, modern design asset in high contrast vibrant colors, digital art mockup studio backdrop, crisp resolution, beautiful graphic design`,
+        prompt: `${prompt}, hyperrealistic, 8k resolution, cinematic lighting, digital overlays, floating UI elements, modern aesthetic, professional ad photography, masterpiece`,
         config: {
           numberOfImages: 1,
           aspectRatio: actualRatio,
