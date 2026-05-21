@@ -1610,7 +1610,7 @@ export default function App() {
                           className="w-full bg-slate-950 border border-white/5 rounded-lg p-2 text-[10px] text-slate-300 placeholder-slate-600 focus:outline-none"
                         />
                         
-                      <div className="space-y-1.5 pt-1">
+
                         <label className="flex items-center gap-2 cursor-pointer mb-2 pb-1.5 border-b border-white/5">
                           <input
                             type="checkbox"
