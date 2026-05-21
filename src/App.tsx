@@ -587,6 +587,11 @@ export default function App() {
     }
   };
 
+  // Exporta apenas a imagem bruta gerada pela IA
+  const handleDownloadRawImage = (imageUrl: string, index: number) => {
+    triggerDownload(imageUrl, `slide-${index + 1}-imagem-bruta.png`);
+  };
+
   return (
     <div className="min-h-screen bg-[#0D0E12] text-slate-100 flex flex-col font-sans transition-colors duration-300">
       
