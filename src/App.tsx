@@ -90,6 +90,72 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // --- Auto-Save and Restore Workflow ---
+  const STORAGE_KEY = "geradorCarrossel_lastProject";
+
+  // Load on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.carouselData) {
+          setTheme(parsed.theme || "");
+          setAudience(parsed.audience || "");
+          setObjective(parsed.objective || "");
+          setCardCount(parsed.cardCount || 5);
+          setSize(parsed.size || "portrait");
+          setSelectedStyleIndex(parsed.selectedStyleIndex || 0);
+          setThemeColor(parsed.themeColor || PRESET_STYLES[0].bg);
+          setTextColor(parsed.textColor || PRESET_STYLES[0].text);
+          setAccentColor(parsed.accentColor || PRESET_STYLES[0].accent);
+          setFontFamily(parsed.fontFamily || PRESET_STYLES[0].font);
+          setUsername(parsed.username || "@seu.perfil");
+          setAvatarUrl(parsed.avatarUrl || "");
+          setCarouselData(parsed.carouselData);
+          setImageFitMode(parsed.imageFitMode || "background");
+          setInstagramCaption(parsed.instagramCaption || "");
+          setCustomPrompt(parsed.customPrompt || "");
+        }
+      } catch (e) {
+        console.error("Failed to load saved project", e);
+      }
+    }
+  }, []);
+
+  // Save on change
+  useEffect(() => {
+    if (carouselData) {
+      try {
+        const projectData = {
+          theme,
+          audience,
+          objective,
+          cardCount,
+          size,
+          selectedStyleIndex,
+          themeColor,
+          textColor,
+          accentColor,
+          fontFamily,
+          username,
+          avatarUrl,
+          carouselData,
+          imageFitMode,
+          instagramCaption,
+          customPrompt
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projectData));
+      } catch (e) {
+        console.warn("Storage quota exceeded. Last project might not be fully saved.");
+      }
+    }
+  }, [
+    theme, audience, objective, cardCount, size, selectedStyleIndex, 
+    themeColor, textColor, accentColor, fontFamily, username, avatarUrl, 
+    carouselData, imageFitMode, instagramCaption, customPrompt
+  ]);
+
   // Update design colors when Preset changes
   const applyPreset = (index: number) => {
     setSelectedStyleIndex(index);
