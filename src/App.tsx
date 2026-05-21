@@ -326,7 +326,7 @@ export default function App() {
     }
   };
 
-  // Single card AI Image Generation using 'gemini-2.5-flash-image' (nano banana)
+  // Single card AI Image Generation
   const handleGenerateImageForCard = async (cardId: number, index: number) => {
     const card = carouselData?.cards[index];
     if (!card) return;
@@ -359,7 +359,7 @@ export default function App() {
       });
     } catch (err: any) {
       console.error(err);
-      setErrorMessage(`Erro ao gerar imagem: ${err.message || "Erro de rede no Gemini nano banana."}`);
+      setErrorMessage(`Erro ao gerar imagem: ${err.message || "Erro de rede no servidor."}`);
     } finally {
       setGeneratingCardImageId(null);
     }
@@ -1869,7 +1869,7 @@ export default function App() {
                 </div>
                 <div className="bg-[#11131A] p-3 rounded-xl border border-white/5 space-y-1">
                   <span className="text-xs font-mono font-bold text-indigo-400">03. Ilustração com IA</span>
-                  <p className="text-[10px] text-slate-500">Crie imagens personalizadas de fundo (Gemini nano banana).</p>
+                  <p className="text-[10px] text-slate-500">Crie imagens personalizadas de fundo geradas pela Inteligência Artificial.</p>
                 </div>
               </div>
 

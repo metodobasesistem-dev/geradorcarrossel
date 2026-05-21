@@ -192,7 +192,7 @@ async function startServer() {
     }
   });
 
-  // 2. Generate Image for a single card using the Gemini model "gemini-2.5-flash-image" (nano banana)
+  // 2. Generate Image for a single card using the Gemini model
   app.post("/api/carousel/generate-image", async (req, res) => {
     try {
       const { prompt, aspectRatio } = req.body;
