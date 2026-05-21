@@ -39,6 +39,8 @@ export default function App() {
   const [theme, setTheme] = useState("");
   const [audience, setAudience] = useState("");
   const [objective, setObjective] = useState("");
+  const [toneOfVoice, setToneOfVoice] = useState("Educativo & Direto");
+  const [postStructure, setPostStructure] = useState("Lista (Top X)");
   const [cardCount, setCardCount] = useState(5);
   const [size, setSize] = useState<DimensionType>("portrait"); // portrait (4:5) is highly recommended for Instagram
   const [selectedStyleIndex, setSelectedStyleIndex] = useState(0);
@@ -103,6 +105,8 @@ export default function App() {
           setTheme(parsed.theme || "");
           setAudience(parsed.audience || "");
           setObjective(parsed.objective || "");
+          setToneOfVoice(parsed.toneOfVoice || "Educativo & Direto");
+          setPostStructure(parsed.postStructure || "Lista (Top X)");
           setCardCount(parsed.cardCount || 5);
           setSize(parsed.size || "portrait");
           setSelectedStyleIndex(parsed.selectedStyleIndex || 0);
@@ -131,6 +135,8 @@ export default function App() {
           theme,
           audience,
           objective,
+          toneOfVoice,
+          postStructure,
           cardCount,
           size,
           selectedStyleIndex,
@@ -151,7 +157,7 @@ export default function App() {
       }
     }
   }, [
-    theme, audience, objective, cardCount, size, selectedStyleIndex, 
+    theme, audience, objective, toneOfVoice, postStructure, cardCount, size, selectedStyleIndex, 
     themeColor, textColor, accentColor, fontFamily, username, avatarUrl, 
     carouselData, imageFitMode, instagramCaption, customPrompt
   ]);
@@ -240,6 +246,8 @@ export default function App() {
           theme,
           audience,
           objective,
+          toneOfVoice,
+          postStructure,
           cardCount,
           size,
           style: PRESET_STYLES[selectedStyleIndex]?.name || "Custom",
@@ -609,117 +617,165 @@ export default function App() {
               </h2>
             </div>
 
-            <div className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex justify-between">
-                  <span>Tema / Assunto Principal</span>
-                  <span className="text-[10px] text-slate-500">Ex: 5 erros fatais de SEO</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Sobre o que você quer falar?"
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                  className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-4">
+              
+              {/* 1.1 O Quê? */}
+              <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl space-y-3">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">1.1 O Quê vamos falar?</h3>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Público-Alvo
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex justify-between items-center">
+                    <span>Tema / Assunto Principal</span>
+                    <button onClick={() => {
+                      const ideas = ["5 erros ocultos em vendas no WhatsApp", "Como criar um Agente de IA em 3 passos", "O segredo para retenção de clientes", "Mitos sobre tráfego pago", "Por que seu perfil não cresce (e como resolver)", "Bastidores de um lançamento milionário", "Como superar o bloqueio criativo"];
+                      setTheme(ideas[Math.floor(Math.random() * ideas.length)]);
+                    }} className="text-[10px] text-purple-400 hover:text-purple-300 font-mono flex items-center gap-1 transition-colors px-2 py-0.5 rounded-full bg-purple-500/10">
+                      <Sparkles className="w-3 h-3" /> Ideia Mágica
+                    </button>
                   </label>
                   <input
                     type="text"
-                    placeholder="Quem vai ler?"
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all"
+                    placeholder="Ex: 5 erros fatais de SEO"
+                    value={theme}
+                    onChange={(e) => setTheme(e.target.value)}
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Objetivo Final
+                    Estrutura do Carrossel (Framework)
+                  </label>
+                  <select
+                    value={postStructure}
+                    onChange={(e) => setPostStructure(e.target.value)}
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="Lista (Top X)">Lista Curada (Top X, 5 Motivos, etc)</option>
+                    <option value="Passo-a-passo (Tutorial)">Passo-a-passo (Tutorial Prático)</option>
+                    <option value="Mito vs Verdade">Mito vs Verdade (Quebra de Objeção)</option>
+                    <option value="Storytelling (Jornada)">Storytelling (Minha Jornada / Case de Sucesso)</option>
+                    <option value="Tiro Curto (Inspiracional)">Tiro Curto (Frase Inspiracional + Elaboração)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 1.2 Para Quem? */}
+              <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl space-y-3">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">1.2 Para Quem?</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Público-Alvo
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Médicos, Freelancers..."
+                      value={audience}
+                      onChange={(e) => setAudience(e.target.value)}
+                      className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Tom de Voz
+                    </label>
+                    <select
+                      value={toneOfVoice}
+                      onChange={(e) => setToneOfVoice(e.target.value)}
+                      className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="Educativo & Direto">Educativo & Direto</option>
+                      <option value="Descontraído & Humor">Descontraído & Com Humor</option>
+                      <option value="Agressivo (Vendas)">Agressivo (Foco em Vendas/Urgência)</option>
+                      <option value="Inspiracional & Emocional">Inspiracional & Emocional</option>
+                      <option value="Polêmico (Gatilho de Curiosidade)">Polêmico (Gatilho de Curiosidade)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 1.3 Para Quê? */}
+              <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl space-y-3">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">1.3 Para Quê e Formatos</h3>
+                
+                {/* Objetivo e Instruções */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Objetivo Final (Call to Action)
                   </label>
                   <input
                     type="text"
-                    placeholder="Ex: Seguir / Curtir"
+                    placeholder="Ex: Comentar 'EU QUERO', Clicar no link da Bio"
                     value={objective}
                     onChange={(e) => setObjective(e.target.value)}
                     className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all"
                   />
                 </div>
-              </div>
 
-              {/* Medidas (Instagram Layout Sizes) Selection */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  Medida / Proporção do Layout
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(Object.keys(DIMENSIONS) as DimensionType[]).map((dimKey) => {
-                    const active = size === dimKey;
-                    return (
-                      <button
-                        key={dimKey}
-                        onClick={() => setSize(dimKey)}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center transition-all duration-200 active:scale-95 ${
-                          active 
-                            ? "bg-purple-600/10 border-purple-500 text-slate-100 font-bold" 
-                            : "bg-slate-900/40 border-white/5 text-slate-400 text-xs hover:bg-slate-900/80 hover:border-white/10"
-                        }`}
-                      >
-                        <span className="text-xs block mb-0.5 font-medium">{DIMENSIONS[dimKey].name.split(" ")[0]}</span>
-                        <span className="text-[10px] font-mono block opacity-60 font-normal">{DIMENSIONS[dimKey].aspectRatio}</span>
-                      </button>
-                    );
-                  })}
+                {/* Medidas (Instagram Layout Sizes) Selection */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-2">
+                    Proporção do Card
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(Object.keys(DIMENSIONS) as DimensionType[]).map((dimKey) => {
+                      const active = size === dimKey;
+                      return (
+                        <button
+                          key={dimKey}
+                          onClick={() => setSize(dimKey)}
+                          className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center transition-all duration-200 active:scale-95 ${
+                            active 
+                              ? "bg-purple-600/10 border-purple-500 text-slate-100 font-bold" 
+                              : "bg-slate-900/40 border-white/5 text-slate-400 text-xs hover:bg-slate-900/80 hover:border-white/10"
+                          }`}
+                        >
+                          <span className="text-xs block mb-0.5 font-medium">{DIMENSIONS[dimKey].name.split(" ")[0]}</span>
+                          <span className="text-[10px] font-mono block opacity-60 font-normal">{DIMENSIONS[dimKey].aspectRatio}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
+                {/* Cards Count */}
+                <div className="grid grid-cols-2 gap-3 items-end">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                      Número de Cards ({cardCount})
+                    </label>
+                    <input
+                      type="range"
+                      min={2}
+                      max={10}
+                      step={1}
+                      value={cardCount}
+                      onChange={(e) => setCardCount(parseInt(e.target.value, 10))}
+                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500 mt-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1 font-mono text-right">
+                      Recomendação
+                    </label>
+                    <div className="text-[11px] text-yellow-400/80 text-right font-medium">
+                      {cardCount <= 4 ? "Leituras Rápidas ⚡" : cardCount <= 7 ? "Post Ideal 💎" : "Guia Completo 📚"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instruções Adicionais Customizadas (Prompt) */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Número de Cards ({cardCount})
+                    Instruções Extras para o Gemini
                   </label>
-                  <input
-                    type="range"
-                    min={2}
-                    max={10}
-                    step={1}
-                    value={cardCount}
-                    onChange={(e) => setCardCount(parseInt(e.target.value, 10))}
-                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500 mt-2"
+                  <textarea
+                    placeholder="Ex: Cite ferramentas como ChatGPT e Midjourney. Foque em dados estatísticos..."
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    rows={2}
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all resize-none"
                   />
-                  <div className="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
-                    <span>2 (Mín)</span>
-                    <span>10 (Máx)</span>
-                  </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1 font-mono text-right">
-                    Relação recomendada
-                  </label>
-                  <div className="text-[11px] text-yellow-400/80 text-right font-medium">
-                    {cardCount <= 4 ? "Leituras Rápidas ⚡" : cardCount <= 7 ? "Post Ideal 💎" : "Guia Completo 📚"}
-                  </div>
-                </div>
-              </div>
-
-              {/* Instruções Adicionais Customizadas (Prompt) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex justify-between">
-                  <span>Instruções adicionais / Prompt (Opcional)</span>
-                  <span className="text-[10px] text-purple-400 font-mono">Poder do Gemini</span>
-                </label>
-                <textarea
-                  placeholder="Ex: Use um tom descontraído e humorado, foque em 3 soluções práticas e inclua hashtags específicas no final..."
-                  value={customPrompt}
-                  onChange={(e) => setCustomPrompt(e.target.value)}
-                  rows={3}
-                  className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all resize-none"
-                />
               </div>
             </div>
 

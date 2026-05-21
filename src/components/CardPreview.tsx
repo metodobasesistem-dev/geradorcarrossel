@@ -62,6 +62,63 @@ const EditableText = ({
   );
 };
 
+const ResizableBlock = ({ children, initialWidth, onResizeEnd, isEditable, className, style }: any) => {
+  const [width, setWidth] = React.useState(initialWidth || 100);
+  const [isResizing, setIsResizing] = React.useState(false);
+  const startXRef = React.useRef(0);
+  const startWidthRef = React.useRef(0);
+
+  React.useEffect(() => {
+    setWidth(initialWidth || 100);
+  }, [initialWidth]);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!isEditable) return;
+    e.stopPropagation();
+    setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = width;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isResizing) return;
+    const dx = e.clientX - startXRef.current;
+    // Base approximation: 1% width is roughly 4px
+    const newWidth = Math.max(50, Math.min(250, startWidthRef.current + (dx / 4)));
+    setWidth(newWidth);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isResizing) return;
+    setIsResizing(false);
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    if (onResizeEnd) {
+      onResizeEnd(Math.round(width));
+    }
+  };
+
+  return (
+    <div 
+      className={`relative group ${className}`} 
+      style={{ ...style, width: `${width}%`, maxWidth: 'none' }}
+    >
+      {children}
+      {isEditable && (
+        <div 
+          className="absolute -right-4 top-1/2 -translate-y-1/2 w-4 h-10 bg-white/20 hover:bg-purple-500 rounded cursor-ew-resize opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20 shadow-lg backdrop-blur-sm active:bg-purple-600"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          title="Arrastar para redimensionar a largura"
+        >
+          <div className="w-0.5 h-4 bg-white/80 rounded-full" />
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function CardPreview({
   card,
   dimensionType,
@@ -253,11 +310,12 @@ export default function CardPreview({
         {/* Card Body & Layout Handler */}
         <div className="flex-1 flex flex-col justify-center my-6">
           {card.layoutType === "text-center" && (
-            <div 
+            <ResizableBlock 
               className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-4 mx-auto ${getFontFamilyClass()}`}
+              initialWidth={card.textWidth || 100}
+              isEditable={isEditable}
+              onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
               style={{ 
-                maxWidth: card.textWidth ? `${card.textWidth}%` : '32rem',
-                width: '100%',
                 transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
                 transformOrigin: 'center' 
               }}
@@ -300,11 +358,12 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "text-left" && (
-            <div 
+            <ResizableBlock 
               className={`${card.textAlign ? `text-${card.textAlign}` : "text-left"} space-y-4 ${getFontFamilyClass()}`}
+              initialWidth={card.textWidth || 100}
+              isEditable={isEditable}
+              onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
               style={{ 
-                maxWidth: card.textWidth ? `${card.textWidth}%` : '36rem',
-                width: '100%',
                 transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
                 transformOrigin: 'left center' 
               }}
@@ -348,11 +407,12 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "quote" && (
-            <div 
+            <ResizableBlock 
               className={`mx-auto ${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 ${getFontFamilyClass()}`}
+              initialWidth={card.textWidth || 100}
+              isEditable={isEditable}
+              onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
               style={{ 
-                maxWidth: card.textWidth ? `${card.textWidth}%` : '36rem',
-                width: '100%',
                 transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
                 transformOrigin: 'center' 
               }}
@@ -387,11 +447,12 @@ export default function CardPreview({
 
           {card.layoutType === "split-vertical" && (
             <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full ${getFontFamilyClass()}`}>
-              <div 
+              <ResizableBlock 
                 className={`md:col-span-3 space-y-4 ${card.textAlign ? `text-${card.textAlign}` : ""}`}
+                initialWidth={card.textWidth || 100}
+                isEditable={isEditable}
+                onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
                 style={{ 
-                  maxWidth: card.textWidth ? `${card.textWidth}%` : '100%',
-                  width: '100%',
                   transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
                   transformOrigin: 'left center' 
                 }}
@@ -455,11 +516,12 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "cta-card" && (
-            <div 
+            <ResizableBlock 
               className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 mx-auto ${getFontFamilyClass()}`}
+              initialWidth={card.textWidth || 100}
+              isEditable={isEditable}
+              onResizeEnd={(w: number) => onUpdateField && onUpdateField("textWidth", w)}
               style={{ 
-                maxWidth: card.textWidth ? `${card.textWidth}%` : '32rem',
-                width: '100%',
                 transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
                 transformOrigin: 'center' 
               }}

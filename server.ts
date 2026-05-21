@@ -42,7 +42,7 @@ async function startServer() {
   // 1. Generate text outline & structure for Instagram Carousel
   app.post("/api/carousel/generate", async (req, res) => {
     try {
-      const { theme, audience, objective, cardCount, size, style, customPrompt } = req.body;
+      const { theme, audience, objective, toneOfVoice, postStructure, cardCount, size, style, customPrompt } = req.body;
 
       if (!theme || !audience || !objective) {
         return res.status(400).json({ error: "Por favor, preencha o tema, público e objetivo do carrossel." });
@@ -64,6 +64,8 @@ async function startServer() {
       Tema do carrossel: "${theme}"
       Público-alvo: "${audience}"
       Objetivo final: "${objective}"
+      Tom de voz desejado: "${toneOfVoice}"
+      Estrutura / Framework do post: "${postStructure}"
       Dimensões sugeridas: "${size}"
       Estilo visual desejado: "${style}"`;
 
