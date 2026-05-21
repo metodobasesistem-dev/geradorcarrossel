@@ -1097,6 +1097,32 @@ export default function App() {
                       </div>
                     </div>
 
+                    {/* Text Scale Slider */}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-[10px] font-semibold text-slate-400">
+                          Tamanho do Texto
+                        </label>
+                        <span className="text-[10px] font-mono text-slate-500">
+                          {Math.round((carouselData.cards[activeCardIndex].textScale || 1) * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="1.5"
+                        step="0.05"
+                        value={carouselData.cards[activeCardIndex].textScale || 1}
+                        onChange={(e) => handleUpdateCardField(activeCardIndex, "textScale", parseFloat(e.target.value))}
+                        className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                      />
+                      <div className="flex justify-between text-[8px] text-slate-500 mt-1 uppercase">
+                        <span>Menor</span>
+                        <span>Normal</span>
+                        <span>Maior</span>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-400 mb-1">
                         Título do Slide

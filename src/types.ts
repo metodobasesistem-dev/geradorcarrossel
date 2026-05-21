@@ -41,6 +41,7 @@ export interface InstagramCard {
   imageUrl?: string; // Generated base64 image or custom upload
   layoutType: "text-center" | "text-left" | "split-vertical" | "quote" | "cta-card";
   ctaText?: string;
+  textScale?: number;
   
   // Slide-level color overrides (optional)
   customBgColor?: string;

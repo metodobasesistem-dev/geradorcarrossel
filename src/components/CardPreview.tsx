@@ -184,7 +184,10 @@ export default function CardPreview({
         {/* Card Body & Layout Handler */}
         <div className="flex-1 flex flex-col justify-center my-6">
           {card.layoutType === "text-center" && (
-            <div className={`text-center space-y-4 max-w-lg mx-auto ${getFontFamilyClass()}`}>
+            <div 
+              className={`text-center space-y-4 max-w-lg mx-auto ${getFontFamilyClass()}`}
+              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+            >
               {card.subtitle && (
                 <p 
                   className="text-xs uppercase tracking-widest font-bold font-mono"
@@ -205,7 +208,10 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "text-left" && (
-            <div className={`text-left space-y-4 max-w-xl ${getFontFamilyClass()}`}>
+            <div 
+              className={`text-left space-y-4 max-w-xl ${getFontFamilyClass()}`}
+              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
+            >
               {card.subtitle && (
                 <p 
                   className="text-xs uppercase tracking-widest font-bold font-mono"
@@ -226,7 +232,10 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "quote" && (
-            <div className={`max-w-xl mx-auto text-center space-y-6 ${getFontFamilyClass()}`}>
+            <div 
+              className={`max-w-xl mx-auto text-center space-y-6 ${getFontFamilyClass()}`}
+              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+            >
               <div className="flex justify-center">
                 <Quote className="w-12 h-12 opacity-30" style={{ color: accentStyle }} />
               </div>
@@ -243,7 +252,10 @@ export default function CardPreview({
 
           {card.layoutType === "split-vertical" && (
             <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full ${getFontFamilyClass()}`}>
-              <div className="md:col-span-3 space-y-4">
+              <div 
+                className="md:col-span-3 space-y-4"
+                style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
+              >
                 {card.subtitle && (
                   <p 
                     className="text-xs uppercase tracking-widest font-semibold font-mono"
@@ -280,7 +292,10 @@ export default function CardPreview({
           )}
 
           {card.layoutType === "cta-card" && (
-            <div className={`text-center space-y-6 max-w-lg mx-auto ${getFontFamilyClass()}`}>
+            <div 
+              className={`text-center space-y-6 max-w-lg mx-auto ${getFontFamilyClass()}`}
+              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+            >
               <span className="inline-block p-1 px-3 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 Último slide 🎉
               </span>
