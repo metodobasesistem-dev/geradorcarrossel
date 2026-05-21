@@ -42,7 +42,7 @@ async function startServer() {
   // 1. Generate text outline & structure for Instagram Carousel
   app.post("/api/carousel/generate", async (req, res) => {
     try {
-      const { theme, audience, objective, toneOfVoice, postStructure, cardCount, size, style, customPrompt } = req.body;
+      const { theme, audience, objective, toneOfVoice, postStructure, cardCount, size, style, customPrompt, referenceImage } = req.body;
 
       if (!theme || !audience || !objective) {
         return res.status(400).json({ error: "Por favor, preencha o tema, público e objetivo do carrossel." });
@@ -87,12 +87,35 @@ async function startServer() {
         prompt += `\n\nDiretrizes adicionais / Instruções de conteúdo específicas enviadas pelo usuário:\n"${customPrompt}"`;
       }
 
+      let aiContents: any = prompt;
+
+      if (referenceImage) {
+        const match = referenceImage.match(/^data:(image\/[a-zA-Z0-9.+]+);base64,(.+)$/);
+        if (match) {
+          const mimeType = match[1];
+          const data = match[2];
+          prompt += `\n\n[INSTRUÇÃO IMPORTANTE - INSPIRAÇÃO VISUAL]\nO usuário anexou uma imagem de referência de um criativo que ele quer CLONAR o estilo.\nSua tarefa agora mudou: você deve analisar a imagem e clonar seu padrão visual e de comunicação:\n1. Extraia as cores principais da imagem fornecida e use EXATAMENTE essas cores para preencher themeColor, textColor e accentColor.\n2. Analise o alinhamento e estrutura visual (ex: se o texto está alinhado à esquerda, use layoutType="text-left", se estiver centralizado use "text-center").\n3. Analise o estilo de escrita da imagem (se houver texto legível) e use a mesma "vibe" para criar a copy do nosso carrossel.\n4. O conteúdo final em si (texto) deve ser sobre o Tema solicitado pelo usuário, mas a "casca visual" deve ser igual à da imagem.`;
+          
+          aiContents = [
+            { inlineData: { mimeType, data } },
+            { text: prompt }
+          ];
+        }
+      }
+
       prompt += `\n\nGere o resultado estritamente no JSON Schema solicitado. 
       Garanta que 'imagePrompt' para cada slide seja um prompt em inglês detalhado e bem descritivo para que um gerador de imagens IA possa gerar um background ou ilustração abstrata/conceitual condizente com a mensagem daquele slide.`;
+      
+      // Update the text in aiContents if it's an array
+      if (Array.isArray(aiContents)) {
+        aiContents[1].text = prompt;
+      } else {
+        aiContents = prompt;
+      }
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: prompt,
+        contents: aiContents,
         config: {
           systemInstruction,
           responseMimeType: "application/json",

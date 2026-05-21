@@ -46,6 +46,7 @@ export default function App() {
   const [size, setSize] = useState<DimensionType>("portrait"); // portrait (4:5) is highly recommended for Instagram
   const [selectedStyleIndex, setSelectedStyleIndex] = useState(0);
   const [customPrompt, setCustomPrompt] = useState("");
+  const [referenceImage, setReferenceImage] = useState<string>("");
 
   // Global Style customization states (initialized from Preset Style 0)
   const [themeColor, setThemeColor] = useState(PRESET_STYLES[0].bg);
@@ -79,6 +80,7 @@ export default function App() {
 
   // References for avatar file input
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const referenceImageInputRef = useRef<HTMLInputElement>(null);
   const cardCustomImageRefs = useRef<Record<number, HTMLInputElement>>({});
   const cardCustomBgImageRefs = useRef<Record<number, HTMLInputElement>>({});
 
@@ -160,7 +162,7 @@ export default function App() {
   }, [
     theme, audience, objective, toneOfVoice, postStructure, cardCount, size, selectedStyleIndex, 
     themeColor, textColor, accentColor, fontFamily, username, avatarUrl, 
-    carouselData, imageFitMode, instagramCaption, customPrompt
+    carouselData, imageFitMode, instagramCaption, customPrompt, referenceImage
   ]);
 
   // Update design colors when Preset changes
@@ -181,6 +183,20 @@ export default function App() {
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
           setAvatarUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Reference Image (Creative Cloning) upload
+  const handleReferenceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setReferenceImage(reader.result);
         }
       };
       reader.readAsDataURL(file);
@@ -251,8 +267,9 @@ export default function App() {
           postStructure,
           cardCount,
           size,
-          style: PRESET_STYLES[selectedStyleIndex]?.name || "Custom",
-          customPrompt
+          style: PRESET_STYLES[selectedStyleIndex].name,
+          customPrompt,
+          referenceImage
         }),
       });
 
@@ -787,6 +804,52 @@ export default function App() {
                     onChange={(e) => setCustomPrompt(e.target.value)}
                     rows={2}
                     className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all resize-none"
+                  />
+                </div>
+
+                {/* Inspiração Visual (Clonagem de Criativo) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-300">
+                      Inspiração Visual (Extração com IA)
+                    </label>
+                    {referenceImage && (
+                      <button 
+                        onClick={() => setReferenceImage("")}
+                        className="text-[10px] text-red-400 hover:text-red-300"
+                      >
+                        Limpar Imagem
+                      </button>
+                    )}
+                  </div>
+                  
+                  {!referenceImage ? (
+                    <div 
+                      onClick={() => referenceImageInputRef.current?.click()}
+                      className="w-full h-20 bg-slate-900/40 border border-dashed border-purple-500/30 hover:border-purple-500/80 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors group"
+                    >
+                      <Upload className="w-4 h-4 text-purple-400 mb-1 group-hover:-translate-y-0.5 transition-transform" />
+                      <span className="text-[10px] text-slate-400 font-medium">Faça upload do criativo de referência</span>
+                      <span className="text-[9px] text-slate-500">Gemini extrairá cores, layout e estilo</span>
+                    </div>
+                  ) : (
+                    <div className="w-full h-20 bg-slate-900/80 border border-purple-500/50 rounded-xl flex items-center p-2 gap-3">
+                      <div 
+                        className="h-full aspect-square rounded border border-white/10 bg-black/50"
+                        style={{ backgroundImage: `url(${referenceImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="block text-xs text-green-400 font-bold mb-0.5">Imagem Carregada ✓</span>
+                        <span className="block text-[10px] text-slate-300 leading-tight">O sistema criará o carrossel seguindo o padrão visual desta imagem.</span>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    ref={referenceImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleReferenceImageUpload}
+                    className="hidden"
                   />
                 </div>
               </div>
