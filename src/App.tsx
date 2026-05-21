@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { flushSync } from "react-dom";
 import { 
   InstagramCard, 
   DimensionType, 
@@ -371,22 +370,46 @@ export default function App() {
     setTimeout(() => setCopiedCaption(false), 2000);
   };
 
-  // Captura um elemento visível e gera PNG na resolução exata do Instagram
-  const captureElement = async (element: HTMLElement): Promise<string> => {
+  // Captura o card visível na tela e gera PNG com resolução exata do Instagram
+  const captureCard = async (cardId: number): Promise<string | null> => {
     await document.fonts.ready;
-    // Calcula o scale para produzir exatamente a largura Instagram (ex: 1080px)
-    const scale = DIMENSIONS[size].width / element.offsetWidth;
+
+    const element = document.getElementById(`card-canvas-${cardId}`);
+    if (!element) return null;
+
+    // getBoundingClientRect retorna as dimensões visuais reais do elemento na tela
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
+
+    // Scale para produzir exatamente largura Instagram (1080px) a partir do tamanho real na tela
+    const scale = DIMENSIONS[size].width / rect.width;
+
     const canvas = await html2canvas(element, {
       scale,
+      // Passa dimensões explícitas para html2canvas não capturar overflow do elemento
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
       useCORS: true,
       allowTaint: true,
       backgroundColor: null,
       logging: false,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
     });
+
     return canvas.toDataURL("image/png");
   };
 
-  // Exporta todos os slides: usa flushSync para garantir re-render síncrono antes de capturar
+  const triggerDownload = (dataUrl: string, filename: string) => {
+    const link = document.createElement("a");
+    link.download = filename;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Exporta todos os slides sequencialmente (troca o slide ativo e aguarda re-render)
   const handleExportAllPng = async () => {
     if (!carouselData) return;
     setIsExportingAll(true);
@@ -397,20 +420,14 @@ export default function App() {
     try {
       for (let i = 0; i < carouselData.cards.length; i++) {
         setExportProgress(Math.round((i / carouselData.cards.length) * 100));
+        setActiveCardIndex(i);
 
-        // flushSync garante que React re-renderiza o card correto antes de capturar
-        flushSync(() => setActiveCardIndex(i));
+        // Aguarda React renderizar o novo slide e o browser fazer layout
+        await new Promise((r) => setTimeout(r, 700));
 
-        const element = document.getElementById(`card-canvas-${carouselData.cards[i].id}`);
-        if (element) {
-          const dataUrl = await captureElement(element);
-          const link = document.createElement("a");
-          link.download = `slide-${i + 1}-instagram.png`;
-          link.href = dataUrl;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          // Delay mínimo para o browser processar o download
+        const dataUrl = await captureCard(carouselData.cards[i].id);
+        if (dataUrl) {
+          triggerDownload(dataUrl, `slide-${i + 1}-instagram.png`);
           await new Promise((r) => setTimeout(r, 300));
         }
       }
@@ -424,18 +441,15 @@ export default function App() {
     }
   };
 
-  // Exporta apenas o slide ativo atual
+  // Exporta apenas o slide atualmente visível na tela
   const handleExportSinglePng = async (cardId: number, index: number) => {
-    const element = document.getElementById(`card-canvas-${cardId}`);
-    if (!element) return;
     try {
-      const dataUrl = await captureElement(element);
-      const link = document.createElement("a");
-      link.download = `slide-${index + 1}-single.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const dataUrl = await captureCard(cardId);
+      if (dataUrl) {
+        triggerDownload(dataUrl, `slide-${index + 1}-single.png`);
+      } else {
+        setErrorMessage("Elemento do slide não encontrado. Verifique se o slide está visível.");
+      }
     } catch (err) {
       console.error(err);
       setErrorMessage("Não foi possível renderizar a imagem deste slide específico.");
