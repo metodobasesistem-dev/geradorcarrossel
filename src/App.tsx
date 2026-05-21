@@ -1337,7 +1337,7 @@ export default function App() {
                       <div>
                         <div className="flex justify-between items-center mb-1">
                           <label className="block text-[10px] font-semibold text-slate-400">
-                            Tamanho do Texto
+                            Escala Global do Texto
                           </label>
                           <span className="text-[10px] font-mono text-slate-500">
                             {Math.round((carouselData.cards[activeCardIndex].textScale || 1) * 100)}%
@@ -1352,10 +1352,44 @@ export default function App() {
                           onChange={(e) => handleUpdateCardField(activeCardIndex, "textScale", parseFloat(e.target.value))}
                           className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
                         />
-                        <div className="flex justify-between text-[8px] text-slate-500 mt-1 uppercase">
-                          <span>Menor</span>
-                          <span>Normal</span>
-                          <span>Maior</span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="block text-[8px] font-semibold text-slate-400">Tamanho Título</label>
+                            <span className="text-[8px] font-mono text-slate-500">{Math.round((carouselData.cards[activeCardIndex].titleScale || 1) * 100)}%</span>
+                          </div>
+                          <input
+                            type="range" min="0.5" max="2.0" step="0.05"
+                            value={carouselData.cards[activeCardIndex].titleScale || 1}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "titleScale", parseFloat(e.target.value))}
+                            className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-400"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="block text-[8px] font-semibold text-slate-400">Tamanho Subtítulo</label>
+                            <span className="text-[8px] font-mono text-slate-500">{Math.round((carouselData.cards[activeCardIndex].subtitleScale || 1) * 100)}%</span>
+                          </div>
+                          <input
+                            type="range" min="0.5" max="2.0" step="0.05"
+                            value={carouselData.cards[activeCardIndex].subtitleScale || 1}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "subtitleScale", parseFloat(e.target.value))}
+                            className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-400"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="block text-[8px] font-semibold text-slate-400">Tamanho Texto</label>
+                            <span className="text-[8px] font-mono text-slate-500">{Math.round((carouselData.cards[activeCardIndex].bodyScale || 1) * 100)}%</span>
+                          </div>
+                          <input
+                            type="range" min="0.5" max="2.0" step="0.05"
+                            value={carouselData.cards[activeCardIndex].bodyScale || 1}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "bodyScale", parseFloat(e.target.value))}
+                            className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-400"
+                          />
                         </div>
                       </div>
 

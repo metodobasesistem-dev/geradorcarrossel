@@ -324,7 +324,7 @@ export default function CardPreview({
                 <EditableText
                   tag="p"
                   className="text-xs uppercase tracking-widest font-bold font-mono"
-                  style={{ color: subtitleColor }}
+                  style={{ color: subtitleColor, zoom: card.subtitleScale || 1 } as React.CSSProperties}
                   value={card.subtitle}
                   field="subtitle"
                   isEditable={isEditable}
@@ -336,6 +336,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
+                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -347,6 +348,7 @@ export default function CardPreview({
                 <EditableText
                   tag="div"
                   className="text-sm md:text-base opacity-90 leading-relaxed font-normal whitespace-pre-line mt-4"
+                  style={{ zoom: card.bodyScale || 1 } as React.CSSProperties}
                   value={card.body}
                   field="body"
                   isEditable={isEditable}
@@ -372,7 +374,7 @@ export default function CardPreview({
                 <EditableText
                   tag="p"
                   className="text-xs uppercase tracking-widest font-bold font-mono"
-                  style={{ color: subtitleColor }}
+                  style={{ color: subtitleColor, zoom: card.subtitleScale || 1 } as React.CSSProperties}
                   value={card.subtitle}
                   field="subtitle"
                   isEditable={isEditable}
@@ -384,6 +386,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
+                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -395,7 +398,7 @@ export default function CardPreview({
                 <EditableText
                   tag="div"
                   className="text-sm md:text-base opacity-95 leading-relaxed whitespace-pre-line border-l-4 pl-4"
-                  style={{ borderColor: accentStyle }}
+                  style={{ borderColor: accentStyle, zoom: card.bodyScale || 1 } as React.CSSProperties}
                   value={card.body}
                   field="body"
                   isEditable={isEditable}
@@ -424,6 +427,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed"
+                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -435,6 +439,7 @@ export default function CardPreview({
                 <EditableText
                   tag="p"
                   className="text-sm md:text-base opacity-80 font-mono"
+                  style={{ zoom: card.bodyScale || 1 } as React.CSSProperties}
                   value={card.body}
                   field="body"
                   isEditable={isEditable}
@@ -461,7 +466,7 @@ export default function CardPreview({
                   <EditableText
                     tag="p"
                     className="text-xs uppercase tracking-widest font-semibold font-mono"
-                    style={{ color: subtitleColor }}
+                    style={{ color: subtitleColor, zoom: card.subtitleScale || 1 } as React.CSSProperties}
                     value={card.subtitle}
                     field="subtitle"
                     isEditable={isEditable}
@@ -473,6 +478,7 @@ export default function CardPreview({
                   <EditableText
                     tag="h2"
                     className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight"
+                    style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
                     value={card.title}
                     field="title"
                     isEditable={isEditable}
@@ -484,6 +490,7 @@ export default function CardPreview({
                   <EditableText
                     tag="div"
                     className="text-sm opacity-90 leading-relaxed whitespace-pre-line"
+                    style={{ zoom: card.bodyScale || 1 } as React.CSSProperties}
                     value={card.body}
                     field="body"
                     isEditable={isEditable}
@@ -552,6 +559,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase"
+                  style={{ zoom: card.titleScale || 1 } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -563,6 +571,7 @@ export default function CardPreview({
                 <EditableText
                   tag="p"
                   className="text-sm md:text-base opacity-90 leading-relaxed font-medium"
+                  style={{ zoom: card.bodyScale || 1 } as React.CSSProperties}
                   value={card.body}
                   field="body"
                   isEditable={isEditable}
