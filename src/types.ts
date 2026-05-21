@@ -42,6 +42,7 @@ export interface InstagramCard {
   layoutType: "text-center" | "text-left" | "split-vertical" | "quote" | "cta-card";
   ctaText?: string;
   textScale?: number;
+  textWidth?: number; // Largura do container de texto
   textOffsetX?: number;
   textOffsetY?: number;
   hidePageCounter?: boolean;

@@ -16,7 +16,51 @@ interface CardPreviewProps {
   showInstagramOverlay: boolean;
   imageFitMode: "background" | "side" | "hidden";
   id?: string;
+  isEditable?: boolean;
+  onUpdateField?: (field: keyof InstagramCard, value: any) => void;
 }
+
+const EditableText = ({
+  tag: Tag = "div",
+  className = "",
+  style = {},
+  value,
+  field,
+  isEditable,
+  onUpdateField,
+  renderFormattedText,
+  primaryColor,
+  highlightColor
+}: any) => {
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  const handleBlur = (e: React.FocusEvent<HTMLElement>) => {
+    setIsFocused(false);
+    if (onUpdateField && e.currentTarget.innerText !== value) {
+      onUpdateField(field, e.currentTarget.innerText);
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isEditable) {
+      e.stopPropagation();
+      if (!isFocused) setIsFocused(true);
+    }
+  };
+
+  return (
+    <Tag
+      className={`${className} ${isEditable && !isFocused ? "cursor-text hover:outline hover:outline-1 hover:outline-dashed hover:outline-white/40 transition-all rounded" : ""} ${isEditable && isFocused ? "outline-none ring-1 ring-purple-500 bg-white/5 rounded" : ""}`}
+      style={style}
+      contentEditable={isEditable && isFocused}
+      suppressContentEditableWarning
+      onBlur={handleBlur}
+      onClick={handleClick}
+    >
+      {isFocused ? value : renderFormattedText(value, primaryColor, highlightColor)}
+    </Tag>
+  );
+};
 
 export default function CardPreview({
   card,
@@ -32,6 +76,8 @@ export default function CardPreview({
   showInstagramOverlay,
   imageFitMode,
   id,
+  isEditable,
+  onUpdateField,
 }: CardPreviewProps) {
   const currentDim = DIMENSIONS[dimensionType];
   const isDark = isColorDark(card.customBgColor || themeColor);
@@ -208,73 +254,133 @@ export default function CardPreview({
         <div className="flex-1 flex flex-col justify-center my-6">
           {card.layoutType === "text-center" && (
             <div 
-              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-4 max-w-lg mx-auto ${getFontFamilyClass()}`}
-              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-4 mx-auto ${getFontFamilyClass()}`}
+              style={{ 
+                maxWidth: card.textWidth ? `${card.textWidth}%` : '32rem',
+                width: '100%',
+                transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
+                transformOrigin: 'center' 
+              }}
             >
               {card.subtitle && !card.hideSubtitle && (
-                <p 
+                <EditableText
+                  tag="p"
                   className="text-xs uppercase tracking-widest font-bold font-mono"
                   style={{ color: subtitleColor }}
-                >
-                  {card.subtitle}
-                </p>
+                  value={card.subtitle}
+                  field="subtitle"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => val}
+                />
               )}
               {!card.hideTitle && (
-                <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
-                  {renderFormattedText(card.title, titleColor, accentStyle)}
-                </h2>
+                <EditableText
+                  tag="h2"
+                  className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
+                  value={card.title}
+                  field="title"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => renderFormattedText(val, titleColor, accentStyle)}
+                />
               )}
               {card.body && !card.hideBody && (
-                <div className="text-sm md:text-base opacity-90 leading-relaxed font-normal whitespace-pre-line mt-4">
-                  {renderFormattedText(card.body, textStyle, accentStyle)}
-                </div>
+                <EditableText
+                  tag="div"
+                  className="text-sm md:text-base opacity-90 leading-relaxed font-normal whitespace-pre-line mt-4"
+                  value={card.body}
+                  field="body"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
+                />
               )}
             </div>
           )}
 
           {card.layoutType === "text-left" && (
             <div 
-              className={`${card.textAlign ? `text-${card.textAlign}` : "text-left"} space-y-4 max-w-xl ${getFontFamilyClass()}`}
-              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-left"} space-y-4 ${getFontFamilyClass()}`}
+              style={{ 
+                maxWidth: card.textWidth ? `${card.textWidth}%` : '36rem',
+                width: '100%',
+                transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
+                transformOrigin: 'left center' 
+              }}
             >
               {card.subtitle && !card.hideSubtitle && (
-                <p 
+                <EditableText
+                  tag="p"
                   className="text-xs uppercase tracking-widest font-bold font-mono"
                   style={{ color: subtitleColor }}
-                >
-                  {card.subtitle}
-                </p>
+                  value={card.subtitle}
+                  field="subtitle"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => val}
+                />
               )}
               {!card.hideTitle && (
-                <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
-                  {renderFormattedText(card.title, titleColor, accentStyle)}
-                </h2>
+                <EditableText
+                  tag="h2"
+                  className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
+                  value={card.title}
+                  field="title"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => renderFormattedText(val, titleColor, accentStyle)}
+                />
               )}
               {card.body && !card.hideBody && (
-                <div className="text-sm md:text-base opacity-95 leading-relaxed whitespace-pre-line border-l-4 pl-4" style={{ borderColor: accentStyle }}>
-                  {renderFormattedText(card.body, textStyle, accentStyle)}
-                </div>
+                <EditableText
+                  tag="div"
+                  className="text-sm md:text-base opacity-95 leading-relaxed whitespace-pre-line border-l-4 pl-4"
+                  style={{ borderColor: accentStyle }}
+                  value={card.body}
+                  field="body"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
+                />
               )}
             </div>
           )}
 
           {card.layoutType === "quote" && (
             <div 
-              className={`max-w-xl mx-auto ${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 ${getFontFamilyClass()}`}
-              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+              className={`mx-auto ${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 ${getFontFamilyClass()}`}
+              style={{ 
+                maxWidth: card.textWidth ? `${card.textWidth}%` : '36rem',
+                width: '100%',
+                transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
+                transformOrigin: 'center' 
+              }}
             >
               <div className="flex justify-center">
                 <Quote className="w-12 h-12 opacity-30" style={{ color: subtitleColor }} />
               </div>
               {!card.hideTitle && (
-                <h2 className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed">
-                  "{renderFormattedText(card.title, titleColor, accentStyle)}"
-                </h2>
+                <EditableText
+                  tag="h2"
+                  className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed"
+                  value={card.title}
+                  field="title"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => `"${renderFormattedText(val, titleColor, accentStyle)}"`}
+                />
               )}
               {card.body && !card.hideBody && (
-                <p className="text-sm md:text-base opacity-80 font-mono">
-                  — {card.body}
-                </p>
+                <EditableText
+                  tag="p"
+                  className="text-sm md:text-base opacity-80 font-mono"
+                  value={card.body}
+                  field="body"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => `— ${val}`}
+                />
               )}
             </div>
           )}
@@ -283,25 +389,46 @@ export default function CardPreview({
             <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full ${getFontFamilyClass()}`}>
               <div 
                 className={`md:col-span-3 space-y-4 ${card.textAlign ? `text-${card.textAlign}` : ""}`}
-                style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
+                style={{ 
+                  maxWidth: card.textWidth ? `${card.textWidth}%` : '100%',
+                  width: '100%',
+                  transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
+                  transformOrigin: 'left center' 
+                }}
               >
                 {card.subtitle && !card.hideSubtitle && (
-                  <p 
+                  <EditableText
+                    tag="p"
                     className="text-xs uppercase tracking-widest font-semibold font-mono"
                     style={{ color: subtitleColor }}
-                  >
-                    {card.subtitle}
-                  </p>
+                    value={card.subtitle}
+                    field="subtitle"
+                    isEditable={isEditable}
+                    onUpdateField={onUpdateField}
+                    renderFormattedText={(val: string) => val}
+                  />
                 )}
                 {!card.hideTitle && (
-                  <h2 className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight">
-                    {renderFormattedText(card.title, titleColor, accentStyle)}
-                  </h2>
+                  <EditableText
+                    tag="h2"
+                    className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight"
+                    value={card.title}
+                    field="title"
+                    isEditable={isEditable}
+                    onUpdateField={onUpdateField}
+                    renderFormattedText={(val: string) => renderFormattedText(val, titleColor, accentStyle)}
+                  />
                 )}
                 {card.body && !card.hideBody && (
-                  <div className="text-sm opacity-90 leading-relaxed whitespace-pre-line">
-                    {renderFormattedText(card.body, textStyle, accentStyle)}
-                  </div>
+                  <EditableText
+                    tag="div"
+                    className="text-sm opacity-90 leading-relaxed whitespace-pre-line"
+                    value={card.body}
+                    field="body"
+                    isEditable={isEditable}
+                    onUpdateField={onUpdateField}
+                    renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
+                  />
                 )}
               </div>
               <div className="md:col-span-2 flex justify-center items-center">
@@ -329,21 +456,38 @@ export default function CardPreview({
 
           {card.layoutType === "cta-card" && (
             <div 
-              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 max-w-lg mx-auto ${getFontFamilyClass()}`}
-              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 mx-auto ${getFontFamilyClass()}`}
+              style={{ 
+                maxWidth: card.textWidth ? `${card.textWidth}%` : '32rem',
+                width: '100%',
+                transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, 
+                transformOrigin: 'center' 
+              }}
             >
               <span className="inline-block p-1 px-3 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 Último slide 🎉
               </span>
               {!card.hideTitle && (
-                <h2 className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase">
-                  {renderFormattedText(card.title, titleColor, accentStyle)}
-                </h2>
+                <EditableText
+                  tag="h2"
+                  className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase"
+                  value={card.title}
+                  field="title"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => renderFormattedText(val, titleColor, accentStyle)}
+                />
               )}
               {card.body && !card.hideBody && (
-                <p className="text-sm md:text-base opacity-90 leading-relaxed font-medium">
-                  {renderFormattedText(card.body, textStyle, accentStyle)}
-                </p>
+                <EditableText
+                  tag="p"
+                  className="text-sm md:text-base opacity-90 leading-relaxed font-medium"
+                  value={card.body}
+                  field="body"
+                  isEditable={isEditable}
+                  onUpdateField={onUpdateField}
+                  renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
+                />
               )}
               
               {/* Call to action action elements */}
