@@ -7,7 +7,7 @@ import {
   CarouselData 
 } from "./types";
 import CardPreview from "./components/CardPreview";
-import html2canvas from "html2canvas-pro";
+import * as htmlToImage from "html-to-image";
 import { 
   Sparkles, 
   Download, 
@@ -384,20 +384,12 @@ export default function App() {
     // Scale para produzir exatamente largura Instagram (1080px) a partir do tamanho real na tela
     const scale = DIMENSIONS[size].width / rect.width;
 
-    const canvas = await html2canvas(element, {
-      scale,
-      // Passa dimensões explícitas para html2canvas não capturar overflow do elemento
-      width: Math.round(rect.width),
-      height: Math.round(rect.height),
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-      logging: false,
-      scrollX: -window.scrollX,
-      scrollY: -window.scrollY,
+    const dataUrl = await htmlToImage.toPng(element, {
+      pixelRatio: scale,
+      cacheBust: true,
     });
 
-    return canvas.toDataURL("image/png");
+    return dataUrl;
   };
 
   const triggerDownload = (dataUrl: string, filename: string) => {
