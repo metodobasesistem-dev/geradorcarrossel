@@ -50,6 +50,15 @@ export interface InstagramCard {
   hideSubtitle?: boolean;
   hideBody?: boolean;
   
+  // Customization Profissional (Nível Canva)
+  backgroundImageUrl?: string; // Fundo específico do slide
+  bgOpacity?: number; // Opacidade do fundo escurecido (0 a 100)
+  hideIllustrationSpace?: boolean; // Para ocultar o pontilhado vazio
+  imageObjectFit?: "cover" | "contain"; // Como a imagem lateral se comporta
+  textAlign?: "left" | "center" | "right" | "justify";
+  customTitleColor?: string;
+  customSubtitleColor?: string;
+  
   // Slide-level color overrides (optional)
   customBgColor?: string;
   customTextColor?: string;

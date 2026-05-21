@@ -101,6 +101,9 @@ export default function CardPreview({
   const bgStyle = card.customBgColor || themeColor;
   const textStyle = card.customTextColor || textColor;
   const accentStyle = card.customAccentColor || accentColor;
+  const titleColor = card.customTitleColor || textStyle;
+  const subtitleColor = card.customSubtitleColor || accentStyle;
+  const cardTextAlign = card.textAlign ? `text-${card.textAlign}` : "";
 
   return (
     <div
@@ -112,23 +115,39 @@ export default function CardPreview({
       }}
     >
       {/* Background Image / Texture Layer */}
-      {card.imageUrl && imageFitMode === "background" && (
+      {card.backgroundImageUrl ? (
         <>
           <div 
-            className="absolute inset-0 bg-cover bg-center transition-all duration-500"
-            style={{ 
-              backgroundImage: `url(${card.imageUrl})`,
-            }}
+            className="absolute inset-0 bg-cover bg-center transition-all duration-500 z-0"
+            style={{ backgroundImage: `url(${card.backgroundImageUrl})` }}
           />
-          {/* Tint overlay so text remains perfectly readable */}
           <div 
-            className="absolute inset-0 transition-opacity duration-300" 
+            className="absolute inset-0 transition-opacity duration-300 z-0" 
             style={{ 
               backgroundColor: bgStyle,
-              opacity: isDark ? 0.75 : 0.85,
+              opacity: (card.bgOpacity !== undefined ? card.bgOpacity : 80) / 100,
             }}
           />
         </>
+      ) : (
+        card.imageUrl && imageFitMode === "background" && (
+          <>
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-all duration-500 z-0"
+              style={{ 
+                backgroundImage: `url(${card.imageUrl})`,
+              }}
+            />
+            {/* Tint overlay so text remains perfectly readable */}
+            <div 
+              className="absolute inset-0 transition-opacity duration-300 z-0" 
+              style={{ 
+                backgroundColor: bgStyle,
+                opacity: isDark ? 0.75 : 0.85,
+              }}
+            />
+          </>
+        )
       )}
 
       {/* Decorative Geometric Elements — gradiente CSS para compatibilidade perfeita com html2canvas */}
@@ -189,20 +208,20 @@ export default function CardPreview({
         <div className="flex-1 flex flex-col justify-center my-6">
           {card.layoutType === "text-center" && (
             <div 
-              className={`text-center space-y-4 max-w-lg mx-auto ${getFontFamilyClass()}`}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-4 max-w-lg mx-auto ${getFontFamilyClass()}`}
               style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
             >
               {card.subtitle && !card.hideSubtitle && (
                 <p 
                   className="text-xs uppercase tracking-widest font-bold font-mono"
-                  style={{ color: accentStyle }}
+                  style={{ color: subtitleColor }}
                 >
                   {card.subtitle}
                 </p>
               )}
               {!card.hideTitle && (
                 <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
-                  {renderFormattedText(card.title, textStyle, accentStyle)}
+                  {renderFormattedText(card.title, titleColor, accentStyle)}
                 </h2>
               )}
               {card.body && !card.hideBody && (
@@ -215,20 +234,20 @@ export default function CardPreview({
 
           {card.layoutType === "text-left" && (
             <div 
-              className={`text-left space-y-4 max-w-xl ${getFontFamilyClass()}`}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-left"} space-y-4 max-w-xl ${getFontFamilyClass()}`}
               style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
             >
               {card.subtitle && !card.hideSubtitle && (
                 <p 
                   className="text-xs uppercase tracking-widest font-bold font-mono"
-                  style={{ color: accentStyle }}
+                  style={{ color: subtitleColor }}
                 >
                   {card.subtitle}
                 </p>
               )}
               {!card.hideTitle && (
                 <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
-                  {renderFormattedText(card.title, textStyle, accentStyle)}
+                  {renderFormattedText(card.title, titleColor, accentStyle)}
                 </h2>
               )}
               {card.body && !card.hideBody && (
@@ -241,15 +260,15 @@ export default function CardPreview({
 
           {card.layoutType === "quote" && (
             <div 
-              className={`max-w-xl mx-auto text-center space-y-6 ${getFontFamilyClass()}`}
+              className={`max-w-xl mx-auto ${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 ${getFontFamilyClass()}`}
               style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
             >
               <div className="flex justify-center">
-                <Quote className="w-12 h-12 opacity-30" style={{ color: accentStyle }} />
+                <Quote className="w-12 h-12 opacity-30" style={{ color: subtitleColor }} />
               </div>
               {!card.hideTitle && (
                 <h2 className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed">
-                  "{renderFormattedText(card.title, textStyle, accentStyle)}"
+                  "{renderFormattedText(card.title, titleColor, accentStyle)}"
                 </h2>
               )}
               {card.body && !card.hideBody && (
@@ -263,20 +282,20 @@ export default function CardPreview({
           {card.layoutType === "split-vertical" && (
             <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full ${getFontFamilyClass()}`}>
               <div 
-                className="md:col-span-3 space-y-4"
+                className={`md:col-span-3 space-y-4 ${card.textAlign ? `text-${card.textAlign}` : ""}`}
                 style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
               >
                 {card.subtitle && !card.hideSubtitle && (
                   <p 
                     className="text-xs uppercase tracking-widest font-semibold font-mono"
-                    style={{ color: accentStyle }}
+                    style={{ color: subtitleColor }}
                   >
                     {card.subtitle}
                   </p>
                 )}
                 {!card.hideTitle && (
                   <h2 className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight">
-                    {renderFormattedText(card.title, textStyle, accentStyle)}
+                    {renderFormattedText(card.title, titleColor, accentStyle)}
                   </h2>
                 )}
                 {card.body && !card.hideBody && (
@@ -287,10 +306,15 @@ export default function CardPreview({
               </div>
               <div className="md:col-span-2 flex justify-center items-center">
                 {card.imageUrl && imageFitMode !== "hidden" ? (
-                  <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10 group bg-cover bg-center"
-                       style={{ backgroundImage: `url(${card.imageUrl})` }}>
+                  <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10 group"
+                       style={{ 
+                         backgroundImage: `url(${card.imageUrl})`,
+                         backgroundSize: card.imageObjectFit === "contain" ? "contain" : "cover",
+                         backgroundPosition: "center",
+                         backgroundRepeat: "no-repeat"
+                       }}>
                   </div>
-                ) : (
+                ) : !card.hideIllustrationSpace && (
                   <div 
                     className="w-full aspect-square rounded-xl flex flex-col items-center justify-center border border-dashed text-xs p-4 text-center"
                     style={{ borderColor: `${textStyle}30`, backgroundColor: `${textStyle}05` }}
@@ -305,7 +329,7 @@ export default function CardPreview({
 
           {card.layoutType === "cta-card" && (
             <div 
-              className={`text-center space-y-6 max-w-lg mx-auto ${getFontFamilyClass()}`}
+              className={`${card.textAlign ? `text-${card.textAlign}` : "text-center"} space-y-6 max-w-lg mx-auto ${getFontFamilyClass()}`}
               style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
             >
               <span className="inline-block p-1 px-3 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -313,7 +337,7 @@ export default function CardPreview({
               </span>
               {!card.hideTitle && (
                 <h2 className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase">
-                  {renderFormattedText(card.title, textStyle, accentStyle)}
+                  {renderFormattedText(card.title, titleColor, accentStyle)}
                 </h2>
               )}
               {card.body && !card.hideBody && (
@@ -344,7 +368,7 @@ export default function CardPreview({
             {index < totalCards - 1 ? (
               <div className="flex items-center gap-2 animate-pulse text-xs font-semibold tracking-wide">
                 <span>Arraste para o lado</span>
-                <ArrowRight className="w-4 h-4" style={{ color: accentStyle }} />
+                <ArrowRight className="w-4 h-4" style={{ color: subtitleColor }} />
               </div>
             ) : (
               <span className="text-xs font-semibold opacity-75">Gostou? Deixe o like!</span>

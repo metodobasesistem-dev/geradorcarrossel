@@ -77,6 +77,7 @@ export default function App() {
   // References for avatar file input
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const cardCustomImageRefs = useRef<Record<number, HTMLInputElement>>({});
+  const cardCustomBgImageRefs = useRef<Record<number, HTMLInputElement>>({});
 
   // Real-time Clock for status indicator as per aesthetic standards
   useEffect(() => {
@@ -107,6 +108,20 @@ export default function App() {
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
           setAvatarUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Custom Background Image Upload for Cards
+  const handleCustomBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>, cardIndex: number) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          handleUpdateCardField(cardIndex, "backgroundImageUrl", reader.result);
         }
       };
       reader.readAsDataURL(file);
@@ -1258,30 +1273,65 @@ export default function App() {
                     )}
 
                     {/* Gemini Image generator tool per slide! */}
-                    <div className="p-3 bg-[#11131A] rounded-xl border border-white/5 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
-                          <ImageIcon className="w-3 h-3" />
-                          <span>Imagem de Arte (Gerador Gemini Nano Banana)</span>
-                        </label>
-                        
-                        {/* Custom files upload */}
-                        <button
-                          onClick={() => cardCustomImageRefs.current[carouselData.cards[activeCardIndex].id]?.click()}
-                          className="text-[9px] text-slate-400 hover:text-slate-100 underline flex items-center gap-1"
-                        >
-                          <Upload className="w-2.5 h-2.5" />
-                          Enviar Imagem Local
-                        </button>
-                        <input
-                          ref={(el) => {
-                            if (el) cardCustomImageRefs.current[carouselData.cards[activeCardIndex].id] = el;
-                          }}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleCustomSlideImageUpload(e, activeCardIndex)}
-                          className="hidden"
-                        />
+                    <div className="p-3 bg-[#11131A] rounded-xl border border-white/5 space-y-3">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
+                            <ImageIcon className="w-3 h-3" />
+                            <span>Imagem de Ilustração</span>
+                          </label>
+                          
+                          <div className="flex gap-2">
+                            {carouselData.cards[activeCardIndex].imageUrl && (
+                              <button
+                                onClick={() => handleUpdateCardField(activeCardIndex, "imageUrl", undefined)}
+                                className="text-[9px] text-red-400 hover:text-red-300 flex items-center gap-1"
+                              >
+                                Remover Imagem
+                              </button>
+                            )}
+                            {/* Custom files upload */}
+                            <button
+                              onClick={() => cardCustomImageRefs.current[carouselData.cards[activeCardIndex].id]?.click()}
+                              className="text-[9px] text-slate-400 hover:text-slate-100 underline flex items-center gap-1"
+                            >
+                              <Upload className="w-2.5 h-2.5" />
+                              Enviar Local
+                            </button>
+                          </div>
+                          <input
+                            ref={(el) => {
+                              if (el) cardCustomImageRefs.current[carouselData.cards[activeCardIndex].id] = el;
+                            }}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleCustomSlideImageUpload(e, activeCardIndex)}
+                            className="hidden"
+                          />
+                        </div>
+
+                        {carouselData.cards[activeCardIndex].layoutType === "split-vertical" && (
+                          <div className="flex gap-3 mt-1">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={carouselData.cards[activeCardIndex].hideIllustrationSpace || false}
+                                onChange={(e) => handleUpdateCardField(activeCardIndex, "hideIllustrationSpace", e.target.checked)}
+                                className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                              />
+                              <span className="text-[9px] text-slate-400">Ocultar Espaço Vazio</span>
+                            </label>
+                            
+                            <select 
+                              value={carouselData.cards[activeCardIndex].imageObjectFit || "cover"}
+                              onChange={(e) => handleUpdateCardField(activeCardIndex, "imageObjectFit", e.target.value)}
+                              className="bg-slate-900 border border-white/10 rounded px-2 py-0.5 text-[9px] text-slate-300 focus:outline-none"
+                            >
+                              <option value="cover">Preencher (Cover)</option>
+                              <option value="contain">Encaixar (Contain)</option>
+                            </select>
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-1.5">
@@ -1310,6 +1360,119 @@ export default function App() {
                             </>
                           )}
                         </button>
+                      </div>
+                    </div>
+
+                    {/* Slide Background Image */}
+                    <div className="p-3 bg-[#11131A] rounded-xl border border-white/5 space-y-2 mt-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                          <span>Imagem de Fundo (Opcional)</span>
+                        </label>
+                        <div className="flex gap-2">
+                          {carouselData.cards[activeCardIndex].backgroundImageUrl && (
+                            <button
+                              onClick={() => handleUpdateCardField(activeCardIndex, "backgroundImageUrl", undefined)}
+                              className="text-[9px] text-red-400 hover:text-red-300 flex items-center gap-1"
+                            >
+                              Remover
+                            </button>
+                          )}
+                          <button
+                            onClick={() => cardCustomBgImageRefs.current[carouselData.cards[activeCardIndex].id]?.click()}
+                            className="text-[9px] text-slate-400 hover:text-slate-100 underline flex items-center gap-1"
+                          >
+                            <Upload className="w-2.5 h-2.5" />
+                            Enviar Fundo
+                          </button>
+                        </div>
+                        <input
+                          ref={(el) => {
+                            if (el) cardCustomBgImageRefs.current[carouselData.cards[activeCardIndex].id] = el;
+                          }}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleCustomBgImageUpload(e, activeCardIndex)}
+                          className="hidden"
+                        />
+                      </div>
+                      
+                      <div className="pt-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="block text-[9px] font-semibold text-slate-400">Escurecer Fundo</label>
+                          <span className="text-[9px] text-slate-500">{carouselData.cards[activeCardIndex].bgOpacity ?? 80}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={carouselData.cards[activeCardIndex].bgOpacity ?? 80}
+                          onChange={(e) => handleUpdateCardField(activeCardIndex, "bgOpacity", parseInt(e.target.value))}
+                          className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-slate-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Typography and Style Controls (Canva Level) */}
+                    <div className="pt-2">
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                        Tipografia e Cores Específicas
+                      </span>
+                      
+                      <div className="bg-[#11131A] border border-white/5 p-2.5 rounded-xl space-y-3">
+                        <div className="flex gap-2 justify-between items-center">
+                          <span className="text-[9px] font-semibold text-slate-400">Alinhamento do Texto:</span>
+                          <div className="flex gap-1 bg-slate-900 rounded p-0.5">
+                            {["left", "center", "right", "justify"].map((align) => (
+                              <button
+                                key={align}
+                                onClick={() => handleUpdateCardField(activeCardIndex, "textAlign", align)}
+                                className={`px-2 py-0.5 text-[10px] rounded uppercase ${
+                                  carouselData.cards[activeCardIndex].textAlign === align
+                                    ? "bg-purple-600/30 text-purple-400"
+                                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
+                                }`}
+                              >
+                                {align === "left" ? "Esq" : align === "center" ? "Centro" : align === "right" ? "Dir" : "Just"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[8px] text-slate-400">Cor do Título</span>
+                            <div className="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded border border-white/5">
+                              <input
+                                type="color"
+                                value={carouselData.cards[activeCardIndex].customTitleColor || carouselData.cards[activeCardIndex].customTextColor || textColor}
+                                onChange={(e) => handleUpdateCardField(activeCardIndex, "customTitleColor", e.target.value)}
+                                className="w-4 h-4 cursor-pointer p-0 bg-transparent border-0"
+                              />
+                              <span className="text-[8px] text-slate-500 uppercase">Tít</span>
+                              {carouselData.cards[activeCardIndex].customTitleColor && (
+                                <button onClick={() => handleUpdateCardField(activeCardIndex, "customTitleColor", undefined)} className="text-[8px] ml-auto text-red-500 hover:text-red-400">X</button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[8px] text-slate-400">Cor do Subtítulo</span>
+                            <div className="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded border border-white/5">
+                              <input
+                                type="color"
+                                value={carouselData.cards[activeCardIndex].customSubtitleColor || carouselData.cards[activeCardIndex].customAccentColor || accentColor}
+                                onChange={(e) => handleUpdateCardField(activeCardIndex, "customSubtitleColor", e.target.value)}
+                                className="w-4 h-4 cursor-pointer p-0 bg-transparent border-0"
+                              />
+                              <span className="text-[8px] text-slate-500 uppercase">Sub</span>
+                              {carouselData.cards[activeCardIndex].customSubtitleColor && (
+                                <button onClick={() => handleUpdateCardField(activeCardIndex, "customSubtitleColor", undefined)} className="text-[8px] ml-auto text-red-500 hover:text-red-400">X</button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -1351,12 +1514,16 @@ export default function App() {
                             />
                           </div>
                           
-                          {(carouselData.cards[activeCardIndex].customBgColor || carouselData.cards[activeCardIndex].customTextColor) && (
+                          {(carouselData.cards[activeCardIndex].customBgColor || carouselData.cards[activeCardIndex].customTextColor || carouselData.cards[activeCardIndex].customTitleColor || carouselData.cards[activeCardIndex].customSubtitleColor) && (
                             <button
-                              onClick={() => handleResetCardColors(activeCardIndex)}
+                              onClick={() => {
+                                handleResetCardColors(activeCardIndex);
+                                handleUpdateCardField(activeCardIndex, "customTitleColor", undefined);
+                                handleUpdateCardField(activeCardIndex, "customSubtitleColor", undefined);
+                              }}
                               className="text-[9px] text-[#FA5454] hover:underline"
                             >
-                              Limpar
+                              Limpar Tudo
                             </button>
                           )}
                         </div>
