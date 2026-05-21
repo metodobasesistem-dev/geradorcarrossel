@@ -8,6 +8,7 @@ import {
 } from "./types";
 import CardPreview from "./components/CardPreview";
 import * as htmlToImage from "html-to-image";
+import JSZip from "jszip";
 import { 
   Sparkles, 
   Download, 
@@ -490,7 +491,7 @@ export default function App() {
     document.body.removeChild(link);
   };
 
-  // Exporta todos os slides sequencialmente (troca o slide ativo e aguarda re-render)
+  // Exporta todos os slides sequencialmente e empacota em um ZIP
   const handleExportAllPng = async () => {
     if (!carouselData) return;
     setIsExportingAll(true);
@@ -499,6 +500,8 @@ export default function App() {
     const oldActiveIndex = activeCardIndex;
 
     try {
+      const zip = new JSZip();
+
       for (let i = 0; i < carouselData.cards.length; i++) {
         setExportProgress(Math.round((i / carouselData.cards.length) * 100));
         setActiveCardIndex(i);
@@ -508,10 +511,20 @@ export default function App() {
 
         const dataUrl = await captureCard(carouselData.cards[i].id);
         if (dataUrl) {
-          triggerDownload(dataUrl, `slide-${i + 1}-instagram.png`);
-          await new Promise((r) => setTimeout(r, 300));
+          const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+          zip.file(`slide-${i + 1}-instagram.png`, base64Data, { base64: true });
         }
       }
+      
+      setExportProgress(95);
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const zipUrl = URL.createObjectURL(content);
+      triggerDownload(zipUrl, `carrossel-instagram.zip`);
+      
+      // Cleanup object URL
+      setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+
       setExportProgress(100);
     } catch (err) {
       console.error("Erro durante exportação das imagens:", err);

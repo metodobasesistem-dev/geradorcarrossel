@@ -354,7 +354,7 @@ export default function CardPreview({
                   renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
                 />
               )}
-            </div>
+            </ResizableBlock>
           )}
 
           {card.layoutType === "text-left" && (
@@ -403,7 +403,7 @@ export default function CardPreview({
                   renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
                 />
               )}
-            </div>
+            </ResizableBlock>
           )}
 
           {card.layoutType === "quote" && (
@@ -442,7 +442,7 @@ export default function CardPreview({
                   renderFormattedText={(val: string) => `— ${val}`}
                 />
               )}
-            </div>
+            </ResizableBlock>
           )}
 
           {card.layoutType === "split-vertical" && (
@@ -491,7 +491,7 @@ export default function CardPreview({
                     renderFormattedText={(val: string) => renderFormattedText(val, textStyle, accentStyle)}
                   />
                 )}
-              </div>
+              </ResizableBlock>
               <div className="md:col-span-2 flex justify-center items-center">
                 {card.imageUrl && imageFitMode !== "hidden" ? (
                   <div className="relative w-full aspect-square rounded-xl overflow-hidden shadow-lg border border-white/10 group"
@@ -563,7 +563,7 @@ export default function CardPreview({
                 </button>
                 <p className="text-[11px] opacity-60">Siga {username || "@seu.perfil"} para conteúdo diário</p>
               </div>
-            </div>
+            </ResizableBlock>
           )}
         </div>
 
