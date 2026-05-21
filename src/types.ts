@@ -42,6 +42,13 @@ export interface InstagramCard {
   layoutType: "text-center" | "text-left" | "split-vertical" | "quote" | "cta-card";
   ctaText?: string;
   textScale?: number;
+  textOffsetX?: number;
+  textOffsetY?: number;
+  hidePageCounter?: boolean;
+  hideProfile?: boolean;
+  hideTitle?: boolean;
+  hideSubtitle?: boolean;
+  hideBody?: boolean;
   
   // Slide-level color overrides (optional)
   customBgColor?: string;

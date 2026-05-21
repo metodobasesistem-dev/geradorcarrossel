@@ -147,38 +147,42 @@ export default function CardPreview({
       >
         {/* Card Header: Brand / Profile Info */}
         <div className="flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-3">
-            {avatarUrl ? (
-              <img 
-                src={avatarUrl} 
-                alt="user avatar" 
-                className="w-10 h-10 rounded-full border border-white/20 object-cover"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border border-white/20"
-                style={{ backgroundColor: accentStyle, color: isDark ? "#FFFFFF" : "#000000" }}
-              >
-                {username ? username.replace("@", "").slice(0, 2).toUpperCase() : "IG"}
-              </div>
-            )}
-            <span className="font-semibold text-sm tracking-wide">
-              {username || "@seu.perfil"}
-            </span>
-          </div>
+          {!card.hideProfile ? (
+            <div className="flex items-center gap-3">
+              {avatarUrl ? (
+                <img 
+                  src={avatarUrl} 
+                  alt="user avatar" 
+                  className="w-10 h-10 rounded-full border border-white/20 object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border border-white/20"
+                  style={{ backgroundColor: accentStyle, color: isDark ? "#FFFFFF" : "#000000" }}
+                >
+                  {username ? username.replace("@", "").slice(0, 2).toUpperCase() : "IG"}
+                </div>
+              )}
+              <span className="font-semibold text-sm tracking-wide">
+                {username || "@seu.perfil"}
+              </span>
+            </div>
+          ) : <div />}
 
           {/* Page Counter (e.g. 1 / 5) */}
-          <div 
-            className="px-3 py-1.5 rounded-full text-xs font-mono font-medium backdrop-blur-md border"
-            style={{ 
-              borderColor: `${textStyle}20`, 
-              backgroundColor: `${bgStyle}80`,
-              color: textStyle
-            }}
-          >
-            {index + 1} / {totalCards}
-          </div>
+          {!card.hidePageCounter && (
+            <div 
+              className="px-3 py-1.5 rounded-full text-xs font-mono font-medium backdrop-blur-md border"
+              style={{ 
+                borderColor: `${textStyle}20`, 
+                backgroundColor: `${bgStyle}80`,
+                color: textStyle
+              }}
+            >
+              {index + 1} / {totalCards}
+            </div>
+          )}
         </div>
 
         {/* Card Body & Layout Handler */}
@@ -186,9 +190,9 @@ export default function CardPreview({
           {card.layoutType === "text-center" && (
             <div 
               className={`text-center space-y-4 max-w-lg mx-auto ${getFontFamilyClass()}`}
-              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
             >
-              {card.subtitle && (
+              {card.subtitle && !card.hideSubtitle && (
                 <p 
                   className="text-xs uppercase tracking-widest font-bold font-mono"
                   style={{ color: accentStyle }}
@@ -196,10 +200,12 @@ export default function CardPreview({
                   {card.subtitle}
                 </p>
               )}
-              <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
-                {renderFormattedText(card.title, textStyle, accentStyle)}
-              </h2>
-              {card.body && (
+              {!card.hideTitle && (
+                <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
+                  {renderFormattedText(card.title, textStyle, accentStyle)}
+                </h2>
+              )}
+              {card.body && !card.hideBody && (
                 <div className="text-sm md:text-base opacity-90 leading-relaxed font-normal whitespace-pre-line mt-4">
                   {renderFormattedText(card.body, textStyle, accentStyle)}
                 </div>
@@ -210,9 +216,9 @@ export default function CardPreview({
           {card.layoutType === "text-left" && (
             <div 
               className={`text-left space-y-4 max-w-xl ${getFontFamilyClass()}`}
-              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
+              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
             >
-              {card.subtitle && (
+              {card.subtitle && !card.hideSubtitle && (
                 <p 
                   className="text-xs uppercase tracking-widest font-bold font-mono"
                   style={{ color: accentStyle }}
@@ -220,10 +226,12 @@ export default function CardPreview({
                   {card.subtitle}
                 </p>
               )}
-              <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
-                {renderFormattedText(card.title, textStyle, accentStyle)}
-              </h2>
-              {card.body && (
+              {!card.hideTitle && (
+                <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
+                  {renderFormattedText(card.title, textStyle, accentStyle)}
+                </h2>
+              )}
+              {card.body && !card.hideBody && (
                 <div className="text-sm md:text-base opacity-95 leading-relaxed whitespace-pre-line border-l-4 pl-4" style={{ borderColor: accentStyle }}>
                   {renderFormattedText(card.body, textStyle, accentStyle)}
                 </div>
@@ -234,15 +242,17 @@ export default function CardPreview({
           {card.layoutType === "quote" && (
             <div 
               className={`max-w-xl mx-auto text-center space-y-6 ${getFontFamilyClass()}`}
-              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
             >
               <div className="flex justify-center">
                 <Quote className="w-12 h-12 opacity-30" style={{ color: accentStyle }} />
               </div>
-              <h2 className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed">
-                "{renderFormattedText(card.title, textStyle, accentStyle)}"
-              </h2>
-              {card.body && (
+              {!card.hideTitle && (
+                <h2 className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed">
+                  "{renderFormattedText(card.title, textStyle, accentStyle)}"
+                </h2>
+              )}
+              {card.body && !card.hideBody && (
                 <p className="text-sm md:text-base opacity-80 font-mono">
                   — {card.body}
                 </p>
@@ -254,9 +264,9 @@ export default function CardPreview({
             <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 items-center h-full ${getFontFamilyClass()}`}>
               <div 
                 className="md:col-span-3 space-y-4"
-                style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
+                style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'left center' }}
               >
-                {card.subtitle && (
+                {card.subtitle && !card.hideSubtitle && (
                   <p 
                     className="text-xs uppercase tracking-widest font-semibold font-mono"
                     style={{ color: accentStyle }}
@@ -264,10 +274,12 @@ export default function CardPreview({
                     {card.subtitle}
                   </p>
                 )}
-                <h2 className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight">
-                  {renderFormattedText(card.title, textStyle, accentStyle)}
-                </h2>
-                {card.body && (
+                {!card.hideTitle && (
+                  <h2 className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight">
+                    {renderFormattedText(card.title, textStyle, accentStyle)}
+                  </h2>
+                )}
+                {card.body && !card.hideBody && (
                   <div className="text-sm opacity-90 leading-relaxed whitespace-pre-line">
                     {renderFormattedText(card.body, textStyle, accentStyle)}
                   </div>
@@ -294,15 +306,17 @@ export default function CardPreview({
           {card.layoutType === "cta-card" && (
             <div 
               className={`text-center space-y-6 max-w-lg mx-auto ${getFontFamilyClass()}`}
-              style={{ transform: `scale(${card.textScale || 1})`, transformOrigin: 'center' }}
+              style={{ transform: `translate(${card.textOffsetX || 0}px, ${card.textOffsetY || 0}px) scale(${card.textScale || 1})`, transformOrigin: 'center' }}
             >
               <span className="inline-block p-1 px-3 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 Último slide 🎉
               </span>
-              <h2 className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase">
-                {renderFormattedText(card.title, textStyle, accentStyle)}
-              </h2>
-              {card.body && (
+              {!card.hideTitle && (
+                <h2 className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase">
+                  {renderFormattedText(card.title, textStyle, accentStyle)}
+                </h2>
+              )}
+              {card.body && !card.hideBody && (
                 <p className="text-sm md:text-base opacity-90 leading-relaxed font-medium">
                   {renderFormattedText(card.body, textStyle, accentStyle)}
                 </p>

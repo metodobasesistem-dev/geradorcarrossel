@@ -1123,6 +1123,86 @@ export default function App() {
                       </div>
                     </div>
 
+                    {/* Position and Visibility Controls */}
+                    <div className="p-3 bg-slate-950/40 rounded-xl border border-white/5 space-y-3">
+                      <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Posição & Visibilidade</h5>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[9px] font-semibold text-slate-400 mb-1">Eixo X (Esq/Dir)</label>
+                          <input
+                            type="range"
+                            min="-200"
+                            max="200"
+                            step="10"
+                            value={carouselData.cards[activeCardIndex].textOffsetX || 0}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "textOffsetX", parseInt(e.target.value))}
+                            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-semibold text-slate-400 mb-1">Eixo Y (Cima/Baixo)</label>
+                          <input
+                            type="range"
+                            min="-200"
+                            max="200"
+                            step="10"
+                            value={carouselData.cards[activeCardIndex].textOffsetY || 0}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "textOffsetY", parseInt(e.target.value))}
+                            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].hidePageCounter || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "hidePageCounter", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[9px] text-slate-400">Ocultar Paginação</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].hideProfile || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "hideProfile", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[9px] text-slate-400">Ocultar Perfil</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].hideTitle || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "hideTitle", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[9px] text-slate-400">Ocultar Título</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].hideSubtitle || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "hideSubtitle", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[9px] text-slate-400">Ocultar Subtítulo</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer col-span-2">
+                          <input
+                            type="checkbox"
+                            checked={carouselData.cards[activeCardIndex].hideBody || false}
+                            onChange={(e) => handleUpdateCardField(activeCardIndex, "hideBody", e.target.checked)}
+                            className="rounded bg-slate-900 border-white/10 text-purple-600 focus:ring-0 focus:ring-offset-0"
+                          />
+                          <span className="text-[9px] text-slate-400">Ocultar Texto Principal</span>
+                        </label>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-400 mb-1">
                         Título do Slide
