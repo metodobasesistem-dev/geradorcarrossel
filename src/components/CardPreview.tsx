@@ -131,17 +131,14 @@ export default function CardPreview({
         </>
       )}
 
-      {/* Decorative Geometric Elements to enhance "Aesthetic Pairings" */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
-        <div 
-          className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full blur-3xl"
-          style={{ backgroundColor: accentStyle }}
-        />
-        <div 
-          className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full blur-3xl opacity-60"
-          style={{ backgroundColor: accentStyle }}
-        />
-      </div>
+      {/* Decorative Geometric Elements — gradiente CSS para compatibilidade perfeita com html2canvas */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at -5% -5%, ${accentStyle}40 0%, transparent 45%),
+                       radial-gradient(circle at 105% 105%, ${accentStyle}28 0%, transparent 50%)`,
+        }}
+      />
 
       {/* Content wrapper depending on Layout */}
       <div 
@@ -196,7 +193,7 @@ export default function CardPreview({
                   {card.subtitle}
                 </p>
               )}
-              <h2 className="text-2xl md:text-3.5xl font-extrabold leading-tight tracking-tight">
+              <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
                 {renderFormattedText(card.title, textStyle, accentStyle)}
               </h2>
               {card.body && (
@@ -217,7 +214,7 @@ export default function CardPreview({
                   {card.subtitle}
                 </p>
               )}
-              <h2 className="text-2xl md:text-3.5xl font-extrabold leading-tight tracking-tight">
+              <h2 className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight">
                 {renderFormattedText(card.title, textStyle, accentStyle)}
               </h2>
               {card.body && (
@@ -233,7 +230,7 @@ export default function CardPreview({
               <div className="flex justify-center">
                 <Quote className="w-12 h-12 opacity-30" style={{ color: accentStyle }} />
               </div>
-              <h2 className="text-xl md:text-2.5xl italic font-semibold leading-relaxed">
+              <h2 className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed">
                 "{renderFormattedText(card.title, textStyle, accentStyle)}"
               </h2>
               {card.body && (
@@ -255,7 +252,7 @@ export default function CardPreview({
                     {card.subtitle}
                   </p>
                 )}
-                <h2 className="text-xl md:text-2.5xl font-extrabold leading-tight tracking-tight">
+                <h2 className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight">
                   {renderFormattedText(card.title, textStyle, accentStyle)}
                 </h2>
                 {card.body && (

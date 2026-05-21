@@ -78,6 +78,10 @@ export default function App() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const cardCustomImageRefs = useRef<Record<number, HTMLInputElement>>({});
 
+  // Preview scale: renders card at full Instagram resolution and scales down visually
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [previewScale, setPreviewScale] = useState(0.31);
+
   // Real-time Clock for status indicator as per aesthetic standards
   useEffect(() => {
     const updateTime = () => {
@@ -88,6 +92,19 @@ export default function App() {
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // Recalcula o scale do preview sempre que o container ou o tamanho mudam
+  useEffect(() => {
+    const updateScale = () => {
+      if (previewContainerRef.current) {
+        const w = previewContainerRef.current.clientWidth;
+        setPreviewScale(w / DIMENSIONS[size].width);
+      }
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [size]);
 
   // Update design colors when Preset changes
   const applyPreset = (index: number) => {
@@ -175,15 +192,20 @@ export default function App() {
       
       // Map properties matching structure
       // Pre-populate some demo mock images or let users generate dynamically
-      const fetchedCards: InstagramCard[] = data.cards.map((c: any, index: number) => ({
-        id: c.id || index + 1,
-        title: c.title || "",
-        subtitle: c.subtitle || "",
-        body: c.body || "",
-        imagePrompt: c.imagePrompt || "Abstract futuristic art backdrop, matching the theme",
-        layoutType: c.layoutType || "text-left",
-        ctaText: c.ctaText || "Arraste para o lado",
-      }));
+      const validLayouts: InstagramCard["layoutType"][] = ["text-center", "text-left", "split-vertical", "quote", "cta-card"];
+      const fetchedCards: InstagramCard[] = data.cards.map((c: any, index: number) => {
+        const rawLayout = (c.layoutType || "").toLowerCase().trim();
+        const layoutType: InstagramCard["layoutType"] = validLayouts.includes(rawLayout as any) ? (rawLayout as InstagramCard["layoutType"]) : "text-left";
+        return {
+          id: c.id || index + 1,
+          title: c.title || "",
+          subtitle: c.subtitle || "",
+          body: c.body || "",
+          imagePrompt: c.imagePrompt || "Abstract futuristic art backdrop, matching the theme",
+          layoutType,
+          ctaText: c.ctaText || "Arraste para o lado",
+        };
+      });
 
       const newCarousel: CarouselData = {
         themeColor: data.themeColor || themeColor,
@@ -994,22 +1016,44 @@ export default function App() {
                 <div className="xl:col-span-6 flex flex-col items-center">
                   <div className="w-full max-w-[340px] md:max-w-[400px]">
                     
-                    {/* Live Preview Wrapper */}
-                    <div className="p-1 background-neon-border rounded-3xl overflow-hidden shadow-2xl relative">
-                      <CardPreview
-                        card={carouselData.cards[activeCardIndex]}
-                        dimensionType={size}
-                        themeColor={themeColor}
-                        textColor={textColor}
-                        accentColor={accentColor}
-                        fontFamily={fontFamily}
-                        username={username}
-                        avatarUrl={avatarUrl}
-                        totalCards={carouselData.cards.length}
-                        index={activeCardIndex}
-                        showInstagramOverlay={showInstagramOverlay}
-                        imageFitMode={imageFitMode}
-                      />
+                    {/* Live Preview Wrapper — card renderizado em 1080px e reduzido via CSS scale */}
+                    <div ref={previewContainerRef} className="p-1 background-neon-border rounded-3xl overflow-hidden shadow-2xl relative">
+                      <div
+                        style={{
+                          width: "100%",
+                          height: `${DIMENSIONS[size].height * previewScale}px`,
+                          overflow: "hidden",
+                          position: "relative",
+                          borderRadius: "0.75rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${DIMENSIONS[size].width}px`,
+                            height: `${DIMENSIONS[size].height}px`,
+                            transform: `scale(${previewScale})`,
+                            transformOrigin: "top left",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                          }}
+                        >
+                          <CardPreview
+                            card={carouselData.cards[activeCardIndex]}
+                            dimensionType={size}
+                            themeColor={themeColor}
+                            textColor={textColor}
+                            accentColor={accentColor}
+                            fontFamily={fontFamily}
+                            username={username}
+                            avatarUrl={avatarUrl}
+                            totalCards={carouselData.cards.length}
+                            index={activeCardIndex}
+                            showInstagramOverlay={showInstagramOverlay}
+                            imageFitMode={imageFitMode}
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Quick export active button under preview */}
