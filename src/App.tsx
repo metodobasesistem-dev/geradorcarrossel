@@ -347,9 +347,10 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: card.imagePrompt,
-          aspectRatio: DIMENSIONS[size].aspectRatio, // "1:1" or "3:4" or "9:16"
+          aspectRatio: DIMENSIONS[size].aspectRatio,
           titleToRender: card.fullDesignMode ? card.title : undefined,
-          subtitleToRender: card.fullDesignMode ? card.subtitle : undefined
+          subtitleToRender: card.fullDesignMode ? card.subtitle : undefined,
+          bodyToRender: card.fullDesignMode ? card.body : undefined,
         }),
       });
 

@@ -195,7 +195,7 @@ async function startServer() {
   // 2. Generate Image for a single card using the Gemini model
   app.post("/api/carousel/generate-image", async (req, res) => {
     try {
-      const { prompt, aspectRatio, titleToRender, subtitleToRender } = req.body;
+      const { prompt, aspectRatio, titleToRender, subtitleToRender, bodyToRender } = req.body;
 
       if (!prompt) {
         return res.status(400).json({ error: "Prompt de imagem é obrigatório." });
@@ -211,15 +211,19 @@ async function startServer() {
       else if (aspectRatio === "4:3") actualRatio = "4:3";
 
       let finalPrompt = `${prompt}, hyperrealistic, 8k resolution, cinematic lighting, digital overlays, floating UI elements, modern aesthetic, professional ad photography, masterpiece`;
-      
-      if (titleToRender) {
-        finalPrompt += `\n\nCRITICAL INSTRUCTION: You MUST render the following exact text directly into the image layout: "${titleToRender}". Use large, bold, modern, highly legible typography. Do not misspell the words.`;
-      }
-      if (subtitleToRender) {
-        finalPrompt += ` Also render this subtext somewhere in the design: "${subtitleToRender}".`;
-      }
-      if (titleToRender || subtitleToRender) {
-        finalPrompt += ` Include modern floating UI cards, glassmorphism dashboards, and mobile app notifications floating around the main subject.`;
+
+      if (titleToRender || subtitleToRender || bodyToRender) {
+        finalPrompt += `\n\nCRITICAL DESIGN INSTRUCTION: This is a professional Instagram carousel slide. You MUST embed ALL of the following text directly into the image as styled typography overlays, in a clear visual hierarchy:`;
+        if (titleToRender) {
+          finalPrompt += `\n- HEADLINE (large, bold, white or high-contrast, dominant): "${titleToRender}"`;
+        }
+        if (subtitleToRender) {
+          finalPrompt += `\n- SUPPORTING TEXT (medium size, semi-bold, accent color): "${subtitleToRender}"`;
+        }
+        if (bodyToRender) {
+          finalPrompt += `\n- BODY COPY (small but legible, normal weight): "${bodyToRender}"`;
+        }
+        finalPrompt += `\nArrange them top-to-bottom in a dedicated text zone with generous padding from edges. Typography must be crisp, anti-aliased, perfectly spelled, and professionally laid out. Do NOT alter or paraphrase the text. The overall result must look like a polished social media post design.`;
       }
 
       console.log(`Generating image using 'imagen-4.0-generate-001' for prompt: "${finalPrompt}" with ratio: ${actualRatio}`);
