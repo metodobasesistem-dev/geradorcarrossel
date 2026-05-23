@@ -417,6 +417,26 @@ export default function App() {
     });
   };
 
+  // Remove card image and restore text visibility (undoes fullDesignMode flags)
+  const handleRemoveCardImage = (index: number) => {
+    setCarouselData(prev => {
+      if (!prev) return prev;
+      const updatedCards = [...prev.cards];
+      updatedCards[index] = {
+        ...updatedCards[index],
+        imageUrl: undefined,
+        fullDesignMode: false,
+        hideTitle: false,
+        hideSubtitle: false,
+        hideBody: false,
+        hideFooter: false,
+        hideBadge: false,
+        hideIllustrationSpace: false,
+      };
+      return { ...prev, cards: updatedCards };
+    });
+  };
+
   // Reset slide level color overrides
   const handleResetCardColors = (index: number) => {
     setCarouselData(prev => {
@@ -1688,7 +1708,7 @@ export default function App() {
                           <div className="flex gap-2">
                             {carouselData.cards[activeCardIndex].imageUrl && (
                               <button
-                                onClick={() => handleUpdateCardField(activeCardIndex, "imageUrl", undefined)}
+                                onClick={() => handleRemoveCardImage(activeCardIndex)}
                                 className="text-[9px] text-red-400 hover:text-red-300 flex items-center gap-1"
                               >
                                 Remover Imagem
