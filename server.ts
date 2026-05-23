@@ -254,6 +254,58 @@ async function startServer() {
     }
   });
 
+  // 3. Generate Instagram Caption via Gemini
+  app.post("/api/carousel/generate-caption", async (req, res) => {
+    try {
+      const { theme, audience, objective, toneOfVoice, cards } = req.body;
+      if (!theme || !cards?.length) {
+        return res.status(400).json({ error: "Tema e cards são obrigatórios." });
+      }
+
+      const ai = getAiClient();
+
+      const cardsSummary = cards
+        .map((c: any, i: number) => `Slide ${i + 1}: "${c.title}" — ${c.body || c.subtitle || ""}`)
+        .join("\n");
+
+      const prompt = `Você é um especialista em marketing de conteúdo para Instagram no Brasil.
+Crie uma legenda completa e pronta para publicar no Instagram para um carrossel com o seguinte contexto:
+
+Tema: ${theme}
+Público-alvo: ${audience}
+Objetivo: ${objective}
+Tom de voz: ${toneOfVoice || "Educativo & Direto"}
+
+Conteúdo dos slides:
+${cardsSummary}
+
+REGRAS OBRIGATÓRIAS:
+- A primeira linha deve ser um GANCHO forte que prende a atenção (máx 10 palavras, sem emojis no início)
+- Depois do gancho, uma linha em branco, depois o corpo do texto
+- Use quebras de linha para facilitar a leitura (1-2 frases por parágrafo)
+- Tom natural, conversacional, como um especialista do nicho falaria
+- Inclua emojis de forma estratégica e moderada
+- Termine com uma CTA clara (ex: "Salva esse post", "Me siga para mais", "Comenta aqui")
+- Na última linha, inclua 15-20 hashtags relevantes para o nicho, separadas por espaço
+- NÃO use markdown (asteriscos, underlines) pois não funciona no Instagram
+- NÃO mencione que é um carrossel ou slides
+- Escreva APENAS a legenda final, sem explicações ou títulos extras`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+      });
+
+      const caption = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (!caption) throw new Error("Nenhuma legenda foi gerada.");
+
+      return res.json({ caption });
+    } catch (err: any) {
+      console.error("Erro em /api/carousel/generate-caption:", err);
+      return res.status(500).json({ error: err.message || "Erro ao gerar legenda." });
+    }
+  });
+
   // Vite or Static Server Integration
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

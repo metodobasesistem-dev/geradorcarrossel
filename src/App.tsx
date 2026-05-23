@@ -234,22 +234,24 @@ export default function App() {
     applyPreset(0);
   };
 
-  // Generate Instagram Caption on Client-side or append to prompt
-  const makeInstagramCaption = (themeInput: string, objectiveInput: string, audienceInput: string, cards: InstagramCard[]) => {
-    let caption = `💡 **${themeInput.toUpperCase()}**\n\n`;
-    caption += `Você já parou para pensar sobre isso? Arraste para o lado e confira os conceitos fundamentais para te ajudar nessa jornada!\n\n`;
-    
-    cards.forEach((card, idx) => {
-      if (idx > 0 && idx < cards.length - 1) {
-        caption += `📌 **No slide ${idx + 1}**: ${card.title} - ${card.body.slice(0, 100)}...\n`;
-      }
-    });
+  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
 
-    caption += `\n🏁 **Ação final**: ${cards[cards.length - 1]?.title || "Siga para mais!"}\n\n`;
-    caption += `🎯 Conteúdo focado em: *${audienceInput}*\n`;
-    caption += `📢 Objetivo do post: *${objectiveInput}*\n\n`;
-    caption += `#marketingdigital #instagrammarketing #growth #criarconteudo #design #instagramcarousel #dicas #canva #inteligenciaartificial`;
-    return caption;
+  const generateCaptionViaAI = async (cards: InstagramCard[]) => {
+    setIsGeneratingCaption(true);
+    try {
+      const response = await fetch("/api/carousel/generate-caption", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ theme, audience, objective, toneOfVoice, cards }),
+      });
+      if (!response.ok) throw new Error("Falha ao gerar legenda");
+      const data = await response.json();
+      setInstagramCaption(data.caption || "");
+    } catch {
+      // silently keep previous caption
+    } finally {
+      setIsGeneratingCaption(false);
+    }
   };
 
   // Trigger content generation (Server-side Gemini Call)
@@ -321,9 +323,8 @@ export default function App() {
       // Reset to slide 1
       setActiveCardIndex(0);
 
-      // Create a nice Instagram caption
-      const generatedCaption = makeInstagramCaption(theme, objective, audience, fetchedCards);
-      setInstagramCaption(generatedCaption);
+      // Generate AI caption (async, non-blocking)
+      generateCaptionViaAI(fetchedCards);
 
     } catch (err: any) {
       console.error(err);
@@ -2046,34 +2047,53 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Instagram Caption & Strategy Suggestions drawer below */}
-              {instagramCaption && (
+              {/* Instagram Caption */}
+              {(instagramCaption || isGeneratingCaption) && (
                 <div className="w-full bg-slate-900/40 p-5 rounded-2xl border border-white/[0.05] space-y-3">
                   <div className="flex items-center justify-between pb-1 border-b border-white/[0.05]">
                     <h5 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                       <Chrome className="w-4 h-4 text-purple-400" />
-                      <span>Legenda do Instagram Gerada ✓</span>
+                      <span>Legenda do Instagram {isGeneratingCaption ? "— Gerando..." : "✓"}</span>
                     </h5>
-                    <button
-                      onClick={copyCaptionToClipboard}
-                      className="py-1 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold text-[10px] text-slate-300 uppercase tracking-widest flex items-center gap-1 transition-all"
-                    >
-                      {copiedCaption ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Copiado!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          <span>Copiar Legenda</span>
-                        </>
+                    <div className="flex items-center gap-2">
+                      {carouselData && (
+                        <button
+                          onClick={() => generateCaptionViaAI(carouselData.cards)}
+                          disabled={isGeneratingCaption}
+                          className="py-1 px-3 rounded-lg bg-purple-900/40 hover:bg-purple-800/50 border border-purple-500/30 font-bold text-[10px] text-purple-300 uppercase tracking-widest flex items-center gap-1 transition-all disabled:opacity-40"
+                        >
+                          ✦ Regenerar
+                        </button>
                       )}
-                    </button>
+                      <button
+                        onClick={copyCaptionToClipboard}
+                        disabled={isGeneratingCaption || !instagramCaption}
+                        className="py-1 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold text-[10px] text-slate-300 uppercase tracking-widest flex items-center gap-1 transition-all disabled:opacity-40"
+                      >
+                        {copiedCaption ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Copiado!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copiar Legenda</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <pre className="text-xs text-slate-300 leading-relaxed max-h-44 overflow-y-auto font-sans whitespace-pre-wrap selection:bg-purple-900/50">
-                    {instagramCaption}
-                  </pre>
+                  {isGeneratingCaption ? (
+                    <div className="flex items-center gap-2 py-4 text-slate-500 text-xs animate-pulse">
+                      <div className="w-3 h-3 rounded-full bg-purple-500/50 animate-bounce" />
+                      Gerando legenda com IA...
+                    </div>
+                  ) : (
+                    <pre className="text-xs text-slate-300 leading-relaxed max-h-64 overflow-y-auto font-sans whitespace-pre-wrap selection:bg-purple-900/50">
+                      {instagramCaption}
+                    </pre>
+                  )}
                 </div>
               )}
 
