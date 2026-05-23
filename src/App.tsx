@@ -167,7 +167,7 @@ export default function App() {
     }
   }, [
     theme, audience, objective, toneOfVoice, postStructure, cardCount, size, selectedStyleIndex, 
-    themeColor, textColor, accentColor, fontFamily, username, avatarUrl, 
+    themeColor, textColor, accentColor, titleFont, bodyFont, username, avatarUrl,
     carouselData, imageFitMode, instagramCaption, customPrompt, referenceImage
   ]);
 
