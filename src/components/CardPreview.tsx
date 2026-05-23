@@ -211,14 +211,16 @@ export default function CardPreview({
   const titleColor = card.customTitleColor || textStyle;
   const subtitleColor = card.customSubtitleColor || accentStyle;
   const cardTextAlign = card.textAlign ? `text-${card.textAlign}` : "";
+  const cardTitleFont = card.customTitleFont || titleFont;
+  const cardBodyFont = card.customBodyFont || bodyFont;
 
   return (
     <div
       id={id || `card-canvas-${card.id}`}
       className={`relative w-full rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${currentDim.ratioClass} border border-white/10`}
-      style={{ 
+      style={{
         backgroundColor: bgStyle,
-        fontFamily: bodyFont,
+        fontFamily: cardBodyFont,
       }}
     >
       {/* Texture Overlay */}
@@ -345,7 +347,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
-                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: cardTitleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -395,7 +397,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-[3.5rem] font-extrabold leading-tight tracking-tight"
-                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: cardTitleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -436,7 +438,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-xl md:text-[2.5rem] italic font-semibold leading-relaxed"
-                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: cardTitleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}
@@ -487,7 +489,7 @@ export default function CardPreview({
                   <EditableText
                     tag="h2"
                     className="text-xl md:text-[2.5rem] font-extrabold leading-tight tracking-tight"
-                    style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
+                    style={{ zoom: card.titleScale || 1, fontFamily: cardTitleFont } as React.CSSProperties}
                     value={card.title}
                     field="title"
                     isEditable={isEditable}
@@ -568,7 +570,7 @@ export default function CardPreview({
                 <EditableText
                   tag="h2"
                   className="text-2xl md:text-4xl font-black leading-none tracking-tight uppercase"
-                  style={{ zoom: card.titleScale || 1, fontFamily: titleFont } as React.CSSProperties}
+                  style={{ zoom: card.titleScale || 1, fontFamily: cardTitleFont } as React.CSSProperties}
                   value={card.title}
                   field="title"
                   isEditable={isEditable}

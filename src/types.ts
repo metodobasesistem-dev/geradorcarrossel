@@ -74,6 +74,10 @@ export interface InstagramCard {
   customBgColor?: string;
   customTextColor?: string;
   customAccentColor?: string;
+
+  // Slide-level font overrides (optional)
+  customTitleFont?: string;
+  customBodyFont?: string;
 }
 
 export interface CarouselData {

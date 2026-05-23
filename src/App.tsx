@@ -448,6 +448,26 @@ export default function App() {
         customBgColor: undefined,
         customTextColor: undefined,
         customAccentColor: undefined,
+        customTitleFont: undefined,
+        customBodyFont: undefined,
+      };
+      return { ...prev, cards: updatedCards };
+    });
+  };
+
+  const handleApplyPresetToCard = (index: number, presetId: string) => {
+    const preset = PRESET_STYLES.find(p => p.id === presetId);
+    if (!preset) return;
+    setCarouselData(prev => {
+      if (!prev) return prev;
+      const updatedCards = [...prev.cards];
+      updatedCards[index] = {
+        ...updatedCards[index],
+        customBgColor: preset.bg,
+        customTextColor: preset.text,
+        customAccentColor: preset.accent,
+        customTitleFont: preset.titleFont,
+        customBodyFont: preset.bodyFont,
       };
       return { ...prev, cards: updatedCards };
     });
@@ -1450,6 +1470,49 @@ export default function App() {
                               }`}
                             >
                               {layout.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Per-card Preset Style */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                          <Palette className="w-3 h-3" />
+                          <span>Estilo deste Card</span>
+                        </label>
+                        {(carouselData.cards[activeCardIndex].customBgColor || carouselData.cards[activeCardIndex].customTitleFont) && (
+                          <button
+                            onClick={() => handleResetCardColors(activeCardIndex)}
+                            className="text-[9px] text-slate-500 hover:text-red-400 transition-colors"
+                          >
+                            ↺ Usar estilo global
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {PRESET_STYLES.map((preset) => {
+                          const isActive =
+                            carouselData.cards[activeCardIndex].customBgColor === preset.bg &&
+                            carouselData.cards[activeCardIndex].customTitleFont === preset.titleFont;
+                          return (
+                            <button
+                              key={preset.id}
+                              onClick={() => handleApplyPresetToCard(activeCardIndex, preset.id)}
+                              className={`flex items-center gap-1.5 p-1.5 rounded-lg border text-left transition-all ${
+                                isActive
+                                  ? "border-purple-500/60 bg-purple-500/10"
+                                  : "border-white/5 bg-slate-950/20 hover:bg-slate-900"
+                              }`}
+                              title={`${preset.titleFont} / ${preset.bodyFont}`}
+                            >
+                              <div className="flex-shrink-0 flex gap-0.5">
+                                <div className="w-2.5 h-4 rounded-sm" style={{ backgroundColor: preset.bg, border: "1px solid rgba(255,255,255,0.15)" }} />
+                                <div className="w-1.5 h-4 rounded-sm" style={{ backgroundColor: preset.accent }} />
+                              </div>
+                              <span className="text-[9px] text-slate-300 truncate leading-tight">{preset.name}</span>
                             </button>
                           );
                         })}
